@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,91 +9,73 @@ namespace SharedLibrary
 {
     public class MainMenu
     {
-        private readonly List<string> _menuOptions = new()
+        private readonly string[] _menuOptions = new[]
         {
-            "Shapes",
-            "Calculator",
-            "Rock-Paper-Scissors",
+            "Shapes (Coming soon!)",
+            "Calculator (Coming soon!)",
+            "Rock-Paper-Scissors (Coming soon!)",
             "Exit"
         };
 
-        public void Show()
-        {
-            Console.Clear();
-            Console.WriteLine("=== Main Menu ===");
-            for (int i = 0; i < _menuOptions.Count; i++)
-            {
-                Console.WriteLine($"{i + 1}. {_menuOptions[i]}");
-            }
-        }
-
-        public int Prompt()
-        {
-            while (true)
-            {
-                Console.Write("\nVälj ett alternativ (1–4): ");
-                var input = Console.ReadLine()?.Trim();
-
-                if (int.TryParse(input, out int choice) &&
-                    choice >= 1 && choice <= _menuOptions.Count)
-                {
-                    return choice;
-                }
-
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Ogiltigt val! Försök igen.");
-                Console.ResetColor();
-            }
-        }
+        public int OptionCount => _menuOptions.Length;
 
         public void Run()
         {
-            bool exitRequested = false;
-            while (!exitRequested)
+            bool exit = false;
+            while (!exit)
             {
-                Show();
-                int choice = Prompt();
+                ShowHeader();
+                int choice = PromptChoice();
+                Console.Clear();
 
-                switch (choice)
+                if (choice == OptionCount)
                 {
-                    case 1:
-                        NavigateToShapes();
-                        break;
-                    case 2:
-                        NavigateToCalculator();
-                        break;
-                    case 3:
-                        NavigateToRps();
-                        break;
-                    case 4:
-                        exitRequested = true;
-                        break;
+                    AnsiConsole.MarkupLine("[grey]Avslutar…[/]");
+                    exit = true;
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine($"\n[bold yellow]>>> {_menuOptions[choice - 1]}[/]");
+                    AnsiConsole.MarkupLine("Tryck på valfri tangent för att återvända…");
+                    Console.ReadKey(true);
                 }
             }
         }
 
-        private void NavigateToShapes()
+        private void ShowHeader()
         {
-            Console.Clear();
-            Console.WriteLine(">>> Shapes-modulen kommer snart! (Coming soon!)");
-            Console.WriteLine("Tryck på valfri tangent för att återvända till huvudmenyn.");
-            Console.ReadKey();
+            AnsiConsole.Clear();
+            AnsiConsole.Write(
+                new FigletText("Main Menu")
+                    .Centered()
+                    .Color(Color.Green));
+            AnsiConsole.Write(new Rule());
         }
 
-        private void NavigateToCalculator()
+        private int PromptChoice()
         {
-            Console.Clear();
-            Console.WriteLine(">>> Calculator-modulen kommer snart! (Coming soon!)");
-            Console.WriteLine("Tryck på valfri tangent för att återvända till huvudmenyn.");
-            Console.ReadKey();
-        }
+            int width = Console.WindowWidth;
+            var paddedOptions = _menuOptions.Select((opt, i) =>
+            {
+                var text = $"{i + 1}. {opt}";
+                int pad = Math.Max((width - text.Length) / 2, 0);
+                return text.PadLeft(text.Length + pad);
+            }).ToArray();
 
-        private void NavigateToRps()
-        {
-            Console.Clear();
-            Console.WriteLine(">>> Sten–Sax–Påse-modulen kommer snart! (Coming soon!)");
-            Console.WriteLine("Tryck på valfri tangent för att återvända till huvudmenyn.");
-            Console.ReadKey();
+            AnsiConsole.Write(
+                new Markup("[yellow]Välj ett alternativ:[/]")
+                    .Centered());
+            AnsiConsole.Write(new Rule());
+
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .PageSize(OptionCount)
+                    .AddChoices(paddedOptions)
+            );
+
+            var trimmed = selection.Trim();
+            var indexStr = trimmed.Split('.')[0];
+            return int.Parse(indexStr);
         }
     }
 }
