@@ -7,8 +7,7 @@ namespace Console_Project_Shapes__Calculator__RPS
         static void Main(string[] args)
         {
             var menu = new MainMenu();
-            menu.Show();
-            Console.ReadKey();
+            menu.Run();
         }
     }
 }
