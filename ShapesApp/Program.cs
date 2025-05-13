@@ -1,10 +1,14 @@
-﻿namespace ShapesApp
+﻿using SharedLibrary;
+
+namespace ShapesApp
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            var menu = new MainMenu();
+            menu.Show();
+            Console.ReadKey();
         }
     }
 }
