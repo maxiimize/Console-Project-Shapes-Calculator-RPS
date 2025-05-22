@@ -1,11 +1,6 @@
 ﻿using DataAcessLayer;
 using Microsoft.Extensions.Hosting;
 using SharedLibrary;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using DataAcessLayer.Interfaces;
-using DataAcessLayer.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 internal class Program
 {

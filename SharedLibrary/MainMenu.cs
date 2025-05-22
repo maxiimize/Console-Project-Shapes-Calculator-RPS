@@ -1,6 +1,8 @@
 ﻿using Spectre.Console;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SharedLibrary
@@ -17,7 +19,7 @@ namespace SharedLibrary
 
         public int OptionCount => _menuOptions.Length;
 
-        public async Task RunAsync()
+        public void Run()
         {
             bool exit = false;
             while (!exit)
@@ -35,7 +37,7 @@ namespace SharedLibrary
                 {
                     AnsiConsole.MarkupLine($"\n[bold yellow]>>> {_menuOptions[choice - 1]}[/]");
                     AnsiConsole.MarkupLine("Tryck på valfri tangent för att återvända…");
-                    await WaitForKeyPressAsync();
+                    Console.ReadKey(true);
                 }
             }
         }
@@ -74,11 +76,6 @@ namespace SharedLibrary
             var trimmed = selection.Trim();
             var indexStr = trimmed.Split('.')[0];
             return int.Parse(indexStr);
-        }
-
-        private Task WaitForKeyPressAsync()
-        {
-            return Task.Run(() => Console.ReadKey(true));
         }
     }
 }
