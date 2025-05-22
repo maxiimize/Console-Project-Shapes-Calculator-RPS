@@ -1,4 +1,6 @@
 ﻿using SharedLibrary;
+using Microsoft.EntityFrameworkCore;
+using DataAcessLayer.ModelsShapes;
 
 namespace ShapesApp
 {
