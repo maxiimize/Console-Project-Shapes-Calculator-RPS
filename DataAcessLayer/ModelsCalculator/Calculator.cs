@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace DataAcessLayer.ModelsCalculator
 {
-    internal class Calculator
+    public class Calculator
     {
+        public int Id { get; set; }
+        public double Operand1 { get; set; }
+        public double? Operand2 { get; set; }    
+        public string Operator { get; set; }     
+        public double Result { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 }

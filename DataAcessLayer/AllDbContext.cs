@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAcessLayer.ModelsCalculator;
+using DataAcessLayer.ModelsRPS;
+using DataAcessLayer.ModelsShapes;
 
 namespace DataAcessLayer
 {
@@ -19,37 +22,37 @@ namespace DataAcessLayer
         public DbSet<Triangle> Triangles { get; set; }
         public DbSet<Rhombus> Rhombi { get; set; }
 
-        //public DbSet<Calculation> Calculations { get; set; }
+        public DbSet<Calculator> Calculations { get; set; }
 
-        //public DbSet<RpsGame> RpsGames { get; set; }
+        public DbSet<RPS> RpsGames { get; set; }
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<Shape>()
-        //        .HasDiscriminator<string>("ShapeType")
-        //        .HasValue<Rectangle>("Rectangle")
-        //        .HasValue<Parallelogram>("Parallelogram")
-        //        .HasValue<Triangle>("Triangle")
-        //        .HasValue<Rhombus>("Rhombus");
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Shape>()
+                .HasDiscriminator<string>("ShapeType")
+                .HasValue<Rectangle>("Rectangle")
+                .HasValue<Parallelogram>("Parallelogram")
+                .HasValue<Triangle>("Triangle")
+                .HasValue<Rhombus>("Rhombus");
 
-        //    modelBuilder.Entity<Calculation>(b =>
-        //    {
-        //        b.HasKey(c => c.Id);
-        //        b.Property(c => c.Operand1).IsRequired();
-        //        b.Property(c => c.Operator).IsRequired().HasMaxLength(5);
-        //        b.Property(c => c.Result).IsRequired();
-        //        b.Property(c => c.DateCreated).IsRequired();
-        //    });
+            modelBuilder.Entity<Calculator>(b =>
+            {
+                b.HasKey(c => c.Id);
+                b.Property(c => c.Operand1).IsRequired();
+                b.Property(c => c.Operator).IsRequired().HasMaxLength(5);
+                b.Property(c => c.Result).IsRequired();
+                b.Property(c => c.DateCreated).IsRequired();
+            });
 
-        //    modelBuilder.Entity<RpsGame>(b =>
-        //    {
-        //        b.HasKey(r => r.Id);
-        //        b.Property(r => r.PlayerMove).IsRequired();
-        //        b.Property(r => r.ComputerMove).IsRequired();
-        //        b.Property(r => r.Outcome).IsRequired();
-        //        b.Property(r => r.DatePlayed).IsRequired();
-        //    });
+            modelBuilder.Entity<RPS>(b =>
+            {
+                b.HasKey(r => r.Id);
+                b.Property(r => r.PlayerMove).IsRequired();
+                b.Property(r => r.ComputerMove).IsRequired();
+                b.Property(r => r.Outcome).IsRequired();
+                b.Property(r => r.DatePlayed).IsRequired();
+            });
 
-        //}
+        }
     }
 }
