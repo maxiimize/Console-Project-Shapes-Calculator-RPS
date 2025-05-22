@@ -5,26 +5,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SharedLibrary;
-internal class Program
+class Program
 {
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
         var host = Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration(cfg =>
             {
                 cfg.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             })
-            .ConfigureServices((context, services) =>
+            .ConfigureServices((ctx, services) =>
             {
                 services.AddDbContext<AllDbContext>(opts =>
-                    opts.UseSqlServer(
-                        context.Configuration.GetConnectionString("DefaultConnection")
-                    ));
-                
-                services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-                
+                    opts.UseSqlServer(ctx.Configuration.GetConnectionString("DefaultConnection"))
+                );
+
                 services.AddTransient<MainMenu>();
-               
             })
             .Build();
 
@@ -35,6 +31,6 @@ internal class Program
         }
 
         var menu = host.Services.GetRequiredService<MainMenu>();
-        await menu.RunAsync();
+        menu.Run();
     }
 }

@@ -1,37 +1,40 @@
-﻿using DataAcessLayer;
+﻿using System;
 using Microsoft.Extensions.Hosting;
-using SharedLibrary;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using SharedLibrary;    
+using DataAcessLayer;   
 
-internal class Program
+namespace ConsoleProject.MainApp
 {
-    static async Task Main(string[] args)
+    class Program
     {
-        var host = Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration(cfg =>
-            {
-                cfg.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            })
-            .ConfigureServices((context, services) =>
-            {
-                services.AddDbContext<AllDbContext>(opts =>
-                    opts.UseSqlServer(
-                        context.Configuration.GetConnectionString("DefaultConnection")
-                    ));
-
-                services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-               
-                services.AddTransient<MainMenu>();
-                
-            })
-            .Build();
-
-        using (var scope = host.Services.CreateScope())
+        static void Main(string[] args)
         {
-            var db = scope.ServiceProvider.GetRequiredService<AllDbContext>();
-            db.Database.Migrate();
-        }
+            var host = Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(cfg =>
+                {
+                    cfg.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                })
+                .ConfigureServices((ctx, services) =>
+                {
+                    services.AddDbContext<AllDbContext>(opts =>
+                        opts.UseSqlServer(ctx.Configuration.GetConnectionString("DefaultConnection"))
+                    );
 
-        var menu = host.Services.GetRequiredService<MainMenu>();
-        await menu.RunAsync();
+                    services.AddTransient<MainMenu>();
+                })
+                .Build();
+
+            using (var scope = host.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AllDbContext>();
+                db.Database.Migrate();
+            }
+
+            var menu = host.Services.GetRequiredService<MainMenu>();
+            menu.Run();
+        }
     }
 }
