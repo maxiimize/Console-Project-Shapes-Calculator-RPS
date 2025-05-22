@@ -1,23 +1,26 @@
 ﻿using Spectre.Console;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharedLibrary
 {
     public class MainMenu
     {
+        private readonly ShapesMenu _shapesMenu;
         private readonly string[] _menuOptions = new[]
         {
-            "Shapes (Coming soon!)",
+            "Shapes",
             "Calculator (Coming soon!)",
             "Rock-Paper-Scissors (Coming soon!)",
             "Exit"
         };
 
         public int OptionCount => _menuOptions.Length;
+
+        public MainMenu(ShapesMenu shapesMenu)
+        {
+            _shapesMenu = shapesMenu;
+        }
 
         public void Run()
         {
@@ -28,15 +31,36 @@ namespace SharedLibrary
                 int choice = PromptChoice();
                 Console.Clear();
 
-                if (choice == OptionCount)
+                switch (choice)
                 {
-                    AnsiConsole.MarkupLine("[grey]Avslutar…[/]");
-                    exit = true;
+                    case 1:
+                        // Kör fullständig Shapes-modul
+                        _shapesMenu.Run();
+                        break;
+
+                    case 2:
+                        // Placeholder för Calculator
+                        AnsiConsole.MarkupLine("[yellow]Calculator är på gång – kommer snart![/]");
+                        break;
+
+                    case 3:
+                        // Placeholder för RPS
+                        AnsiConsole.MarkupLine("[yellow]Rock-Paper-Scissors är på gång – kommer snart![/]");
+                        break;
+
+                    case 4:
+                        AnsiConsole.MarkupLine("[grey]Avslutar…[/]");
+                        exit = true;
+                        break;
+
+                    default:
+                        AnsiConsole.MarkupLine("[red]Ogiltigt val, försök igen.[/]");
+                        break;
                 }
-                else
+
+                if (!exit)
                 {
-                    AnsiConsole.MarkupLine($"\n[bold yellow]>>> {_menuOptions[choice - 1]}[/]");
-                    AnsiConsole.MarkupLine("Tryck på valfri tangent för att återvända…");
+                    AnsiConsole.MarkupLine("\nTryck på valfri tangent för att återvända till huvudmenyn…");
                     Console.ReadKey(true);
                 }
             }
@@ -55,12 +79,14 @@ namespace SharedLibrary
         private int PromptChoice()
         {
             int width = Console.WindowWidth;
-            var paddedOptions = _menuOptions.Select((opt, i) =>
-            {
-                var text = $"{i + 1}. {opt}";
-                int pad = Math.Max((width - text.Length) / 2, 0);
-                return text.PadLeft(text.Length + pad);
-            }).ToArray();
+            var paddedOptions = _menuOptions
+                .Select((opt, i) =>
+                {
+                    var text = $"{i + 1}. {opt}";
+                    int pad = Math.Max((width - text.Length) / 2, 0);
+                    return text.PadLeft(text.Length + pad);
+                })
+                .ToArray();
 
             AnsiConsole.Write(
                 new Markup("[yellow]Välj ett alternativ:[/]")

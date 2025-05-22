@@ -11,13 +11,13 @@ namespace DataAcessLayer.ModelsShapes
 {
     public class Parallelogram : Shape
     {
-        [Required]
         public double BaseLength { get; set; }
-
-        [Required]
         public double SideLength { get; set; }
-
-        [Required]
         public double Height { get; set; }
+        public override void Calculate()
+        {
+            Area = BaseLength * Height;
+            Perimeter = 2 * (BaseLength + SideLength);
+        }
     }
 }

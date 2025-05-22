@@ -11,13 +11,14 @@ namespace DataAcessLayer.ModelsShapes
 {
     public class Triangle : Shape
     {
-        [Required]
         public double SideA { get; set; }
-
-        [Required]
         public double SideB { get; set; }
-
-        [Required]
         public double SideC { get; set; }
+        public override void Calculate()
+        {
+            var s = (SideA + SideB + SideC) / 2;
+            Area = Math.Sqrt(s * (s - SideA) * (s - SideB) * (s - SideC));
+            Perimeter = SideA + SideB + SideC;
+        }
     }
 }
