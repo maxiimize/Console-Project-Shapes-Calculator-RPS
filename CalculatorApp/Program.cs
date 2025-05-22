@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using DataAcessLayer;
+using DataAcessLayer.Interfaces;
+using DataAcessLayer.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
