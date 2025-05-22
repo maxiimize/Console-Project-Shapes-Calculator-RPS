@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAcessLayer.Models
+namespace DataAcessLayer.ModelsShapes
 {
     public class Rectangle : Shape
     {

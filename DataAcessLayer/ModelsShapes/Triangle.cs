@@ -5,17 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAcessLayer.Models
+namespace DataAcessLayer.ModelsShapes
 {
-    public class Parallelogram : Shape
+    public class Triangle : Shape
     {
         [Required]
-        public double BaseLength { get; set; }
+        public double SideA { get; set; }
 
         [Required]
-        public double SideLength { get; set; }
+        public double SideB { get; set; }
 
         [Required]
-        public double Height { get; set; }
+        public double SideC { get; set; }
     }
 }
