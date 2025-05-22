@@ -131,14 +131,44 @@ namespace SharedLibrary
             var shape = _context.Shapes.Find(id);
             if (shape == null)
             {
-                AnsiConsole.MarkupLine("[red]Not found![/]");
+                AnsiConsole.MarkupLine("[red]Shape not found![/]");
                 AnsiConsole.Prompt(new TextPrompt<string>("Press enter to continue"));
                 return;
             }
 
-            _context.Entry(shape).State = EntityState.Detached;
-            CreateShape();
+            switch (shape)
+            {
+                case Rectangle r:
+                    r.Width = PromptDouble("New Width");
+                    r.Height = PromptDouble("New Height");
+                    break;
+
+                case Parallelogram p:
+                    p.BaseLength = PromptDouble("New Base length");
+                    p.SideLength = PromptDouble("New Side length");
+                    p.Height = PromptDouble("New Height");
+                    break;
+
+                case Triangle t:
+                    t.SideA = PromptDouble("New Side A");
+                    t.SideB = PromptDouble("New Side B");
+                    t.SideC = PromptDouble("New Side C");
+                    break;
+
+                case Rhombus h:
+                    h.SideLength = PromptDouble("New Side length");
+                    h.Diagonal1 = PromptDouble("New Diagonal 1");
+                    h.Diagonal2 = PromptDouble("New Diagonal 2");
+                    break;
+            }
+
+            shape.Calculate();
+            _context.SaveChanges();
+
+            AnsiConsole.MarkupLine("[green]Shape updated![/]");
+            AnsiConsole.Prompt(new TextPrompt<string>("Press enter to continue"));
         }
+
 
         private void DeleteShape()
         {
