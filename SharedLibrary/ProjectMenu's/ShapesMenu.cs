@@ -36,8 +36,7 @@ namespace SharedLibrary
 
                 if (!back)
                 {
-                    AnsiConsole.MarkupLine("\n[grey]Tryck enter för att återvända…[/]");
-                    Console.ReadLine();
+                    
                 }
             }
         }
