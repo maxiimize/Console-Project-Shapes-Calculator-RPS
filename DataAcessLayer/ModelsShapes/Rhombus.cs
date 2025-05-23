@@ -12,11 +12,11 @@ namespace DataAcessLayer.ModelsShapes
     public class Rhombus : Shape
     {
         public double SideLength { get; set; }
-        public double Diagonal1 { get; set; }
-        public double Diagonal2 { get; set; }
+        public double Height { get; set; }
+
         public override void Calculate()
         {
-            Area = (Diagonal1 * Diagonal2) / 2;
+            Area = SideLength * Height;
             Perimeter = 4 * SideLength;
         }
     }

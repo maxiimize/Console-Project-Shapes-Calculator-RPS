@@ -25,24 +25,19 @@ namespace SharedLibrary
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Shapes Menu")
-                        .AddChoices("1. Create new shape", "2. List all shapes", "3. Update a shape", "4. Delete a shape", "5. Back to Main Menu"));
+                        .AddChoices(
+                            "1. Create new shape",
+                            "2. List all shapes",
+                            "3. Update a shape",
+                            "4. Delete a shape",
+                            "5. Back to Main Menu"));
                 switch (choice[0])
                 {
-                    case '1':
-                        CreateShape();
-                        break;
-                    case '2':
-                        ListShapes();
-                        break;
-                    case '3':
-                        UpdateShape();
-                        break;
-                    case '4':
-                        DeleteShape();
-                        break;
-                    case '5':
-                        back = true;
-                        break;
+                    case '1': CreateShape(); break;
+                    case '2': ListShapes(); break;
+                    case '3': UpdateShape(); break;
+                    case '4': DeleteShape(); break;
+                    case '5': back = true; break;
                 }
             }
         }
@@ -69,15 +64,15 @@ namespace SharedLibrary
                 },
                 "Triangle" => new Triangle
                 {
+                    BaseLength = PromptDouble("Base length"),
+                    Height = PromptDouble("Height"),
                     SideA = PromptDouble("Side A"),
-                    SideB = PromptDouble("Side B"),
-                    SideC = PromptDouble("Side C")
+                    SideB = PromptDouble("Side B")
                 },
                 "Rhombus" => new Rhombus
                 {
                     SideLength = PromptDouble("Side length"),
-                    Diagonal1 = PromptDouble("Diagonal 1"),
-                    Diagonal2 = PromptDouble("Diagonal 2")
+                    Height = PromptDouble("Height")
                 },
                 _ => throw new InvalidOperationException()
             };
@@ -88,7 +83,8 @@ namespace SharedLibrary
             _context.SaveChanges();
 
             AnsiConsole.MarkupLine("[green]Shape saved![/]");
-            AnsiConsole.Prompt(new TextPrompt<string>("Press enter to continue"));
+            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            Console.ReadLine();
         }
 
         private void ListShapes()
@@ -108,10 +104,11 @@ namespace SharedLibrary
                 {
                     Rectangle r => $"W={r.Width}, H={r.Height}",
                     Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
-                    Triangle t => $"A={t.SideA}, B={t.SideB}, C={t.SideC}",
-                    Rhombus h => $"S={h.SideLength}, D1={h.Diagonal1}, D2={h.Diagonal2}",
+                    Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
+                    Rhombus h => $"S={h.SideLength}, H={h.Height}",
                     _ => string.Empty
                 };
+
                 table.AddRow(
                     s.Id.ToString(),
                     s.GetType().Name,
@@ -122,19 +119,56 @@ namespace SharedLibrary
             }
 
             AnsiConsole.Write(table);
-            AnsiConsole.Prompt(new TextPrompt<string>("Press enter to continue"));
+            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            Console.ReadLine();
         }
 
         private void UpdateShape()
         {
-            int id = AnsiConsole.Prompt(new TextPrompt<int>("Enter Id of shape to update:"));
-            var shape = _context.Shapes.Find(id);
-            if (shape == null)
+            var allShapes = _context.Shapes.OrderBy(s => s.DateCreated).ToList();
+            if (!allShapes.Any())
             {
-                AnsiConsole.MarkupLine("[red]Shape not found![/]");
-                AnsiConsole.Prompt(new TextPrompt<string>("Press enter to continue"));
+                AnsiConsole.MarkupLine("[red]Inga shapes att uppdatera![/]");
+                AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+                Console.ReadLine();
                 return;
             }
+
+            var options = allShapes
+                .Select(s =>
+                {
+                    string paramDesc = s switch
+                    {
+                        Rectangle r => $"W={r.Width}, H={r.Height}",
+                        Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
+                        Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
+                        Rhombus h => $"S={h.SideLength}, H={h.Height}",
+                        _ => ""
+                    };
+                    return string.Format(
+                        "{0,3} | {1,-12} | {2,-30} | {3:yyyy-MM-dd HH:mm}",
+                        s.Id,
+                        s.GetType().Name,
+                        paramDesc,
+                        s.DateCreated
+                    );
+                })
+                .ToList();
+
+            options.Insert(0, "  0 | Back");
+
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Choose a shape to update (0 = Back):[/]")
+                    .PageSize(Math.Min(options.Count, 10))
+                    .AddChoices(options)
+            );
+
+            if (selection.StartsWith("  0"))
+                return;
+
+            var id = int.Parse(selection.Split('|')[0]);
+            var shape = _context.Shapes.Find(id)!;
 
             switch (shape)
             {
@@ -142,23 +176,20 @@ namespace SharedLibrary
                     r.Width = PromptDouble("New Width");
                     r.Height = PromptDouble("New Height");
                     break;
-
                 case Parallelogram p:
                     p.BaseLength = PromptDouble("New Base length");
                     p.SideLength = PromptDouble("New Side length");
                     p.Height = PromptDouble("New Height");
                     break;
-
                 case Triangle t:
+                    t.BaseLength = PromptDouble("New Base length");
+                    t.Height = PromptDouble("New Height");
                     t.SideA = PromptDouble("New Side A");
                     t.SideB = PromptDouble("New Side B");
-                    t.SideC = PromptDouble("New Side C");
                     break;
-
                 case Rhombus h:
                     h.SideLength = PromptDouble("New Side length");
-                    h.Diagonal1 = PromptDouble("New Diagonal 1");
-                    h.Diagonal2 = PromptDouble("New Diagonal 2");
+                    h.Height = PromptDouble("New Height");
                     break;
             }
 
@@ -166,9 +197,9 @@ namespace SharedLibrary
             _context.SaveChanges();
 
             AnsiConsole.MarkupLine("[green]Shape updated![/]");
-            AnsiConsole.Prompt(new TextPrompt<string>("Press enter to continue"));
+            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            Console.ReadLine();
         }
-
 
         private void DeleteShape()
         {
@@ -184,7 +215,8 @@ namespace SharedLibrary
             {
                 AnsiConsole.MarkupLine("[red]Not found![/]");
             }
-            AnsiConsole.Prompt(new TextPrompt<string>("Press enter to continue"));
+            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            Console.ReadLine();
         }
 
         private double PromptDouble(string name)

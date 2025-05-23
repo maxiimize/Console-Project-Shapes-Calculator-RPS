@@ -60,8 +60,7 @@ namespace SharedLibrary
 
                 if (!exit)
                 {
-                    AnsiConsole.MarkupLine("\nTryck på valfri tangent för att återvända till huvudmenyn…");
-                    Console.ReadKey(true);
+                    
                 }
             }
         }

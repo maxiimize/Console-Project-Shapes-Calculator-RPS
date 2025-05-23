@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using SharedLibrary;
 using DataAcessLayer;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace ConsoleProject.MainApp
 {
