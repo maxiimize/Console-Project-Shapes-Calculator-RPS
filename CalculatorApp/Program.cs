@@ -1,13 +1,37 @@
-﻿using SharedLibrary;
+﻿using System.Threading.Tasks;
+using DataAcessLayer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SharedLibrary;
 
-namespace CalculatorApp
+class Program
 {
-    internal class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
+        var host = Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration(cfg =>
+            {
+                cfg.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            })
+            .ConfigureServices((ctx, services) =>
+            {
+                services.AddDbContext<AllDbContext>(opts =>
+                    opts.UseSqlServer(ctx.Configuration.GetConnectionString("DefaultConnection"))
+                );
+
+                services.AddTransient<MainMenu>();
+            })
+            .Build();
+
+        using (var scope = host.Services.CreateScope())
         {
-            var menu = new MainMenu();
-            menu.Run();
+            var db = scope.ServiceProvider.GetRequiredService<AllDbContext>();
+            db.Database.Migrate();
         }
+
+        var menu = host.Services.GetRequiredService<MainMenu>();
+        menu.Run();
     }
 }
