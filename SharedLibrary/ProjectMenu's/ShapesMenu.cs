@@ -55,12 +55,12 @@ namespace SharedLibrary
         {
             var options = new[]
             {
-        "1. Create new shape",
-        "2. List all shapes",
-        "3. Update a shape",
-        "4. Delete a shape",
-        "5. Back to Main Menu"
-    };
+                "1. Create new shape",
+                "2. List all shapes",
+                "3. Update a shape",
+                "4. Delete a shape",
+                "5. Back to Main Menu"
+            };
 
             int maxLen = options.Max(o => o.Length);
             int consoleWidth = Console.WindowWidth;
@@ -246,10 +246,7 @@ namespace SharedLibrary
 
         private void DeleteShape()
         {
-            var allShapes = _context.Shapes
-                .OrderBy(s => s.DateCreated)
-                .ToList();
-
+            var allShapes = _context.Shapes.OrderBy(s => s.DateCreated).ToList();
             if (!allShapes.Any())
             {
                 AnsiConsole.MarkupLine("[red]Inga shapes att radera![/]");
@@ -269,23 +266,31 @@ namespace SharedLibrary
                         Rhombus h => $"S={h.SideLength}, H={h.Height}",
                         _ => ""
                     };
-                    return $"{s.Id}. {s.GetType().Name} — {paramDesc}";
+                    return string.Format(
+                        "{0,3} | {1,-12} | {2,-30} | {3:yyyy-MM-dd HH:mm}",
+                        s.Id,
+                        s.GetType().Name,
+                        paramDesc,
+                        s.DateCreated
+                    );
                 })
-                .Prepend("0. Back")
-                .ToArray();
+                .ToList();
+
+            options.Insert(0, "  0 | Back");
 
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("Choose a shape to delete (0 = Back):")
-                    .PageSize(options.Length)
+                    .Title("[yellow]Choose a shape to delete (0 = Back):[/]")
+                    .PageSize(Math.Min(options.Count, 10))
                     .AddChoices(options)
             );
 
-            if (selection.StartsWith("0"))
+            if (selection.StartsWith("  0"))
                 return;
 
-            int id = int.Parse(selection.Split('.')[0]);
+            var id = int.Parse(selection.Split('|')[0]);
             var shape = _context.Shapes.Find(id)!;
+
             shape.IsDeleted = true;
             _context.SaveChanges();
 
