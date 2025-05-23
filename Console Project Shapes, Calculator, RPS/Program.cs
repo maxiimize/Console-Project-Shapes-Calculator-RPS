@@ -3,8 +3,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
-using SharedLibrary;    
-using DataAcessLayer;   
+using SharedLibrary;
+using DataAcessLayer;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace ConsoleProject.MainApp
 {
@@ -23,6 +24,7 @@ namespace ConsoleProject.MainApp
                         opts.UseSqlServer(ctx.Configuration.GetConnectionString("DefaultConnection"))
                     );
 
+                    services.AddTransient<ShapesMenu>();
                     services.AddTransient<MainMenu>();
                 })
                 .Build();
@@ -33,8 +35,11 @@ namespace ConsoleProject.MainApp
                 db.Database.Migrate();
             }
 
-            var menu = host.Services.GetRequiredService<MainMenu>();
-            menu.Run();
+            using (var scope = host.Services.CreateScope())
+            {
+                var menu = scope.ServiceProvider.GetRequiredService<MainMenu>();
+                menu.Run();
+            }
         }
     }
 }

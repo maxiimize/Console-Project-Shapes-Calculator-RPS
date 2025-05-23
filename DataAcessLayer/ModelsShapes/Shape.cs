@@ -11,16 +11,11 @@ namespace DataAcessLayer.ModelsShapes
 {
     public abstract class Shape
     {
-        [Key]
         public int Id { get; set; }
-
-        [Required]
-        public double Area { get; set; }
-
-        [Required]
-        public double Perimeter { get; set; }
-
-        [Required]
+        public double Area { get; protected set; }
+        public double Perimeter { get; protected set; }
         public DateTime DateCreated { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public abstract void Calculate();
     }
 }

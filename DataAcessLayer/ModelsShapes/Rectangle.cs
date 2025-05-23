@@ -11,10 +11,12 @@ namespace DataAcessLayer.ModelsShapes
 {
     public class Rectangle : Shape
     {
-        [Required]
         public double Width { get; set; }
-
-        [Required]
         public double Height { get; set; }
+        public override void Calculate()
+        {
+            Area = Width * Height;
+            Perimeter = 2 * (Width + Height);
+        }
     }
 }
