@@ -28,6 +28,11 @@ namespace DataAcessLayer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            
+            modelBuilder.Entity<Shape>()
+                .HasQueryFilter(s => !s.IsDeleted);
+
             modelBuilder.Entity<Shape>()
                 .HasDiscriminator<string>("ShapeType")
                 .HasValue<Rectangle>("Rectangle")

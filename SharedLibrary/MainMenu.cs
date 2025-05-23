@@ -77,14 +77,17 @@ namespace SharedLibrary
 
         private int PromptChoice()
         {
-            int width = Console.WindowWidth;
-            var paddedOptions = _menuOptions
-                .Select((opt, i) =>
-                {
-                    var text = $"{i + 1}. {opt}";
-                    int pad = Math.Max((width - text.Length) / 2, 0);
-                    return text.PadLeft(text.Length + pad);
-                })
+            var options = _menuOptions
+                .Select((opt, i) => $"{i + 1}. {opt}")
+                .ToArray();
+
+            int maxLen = options.Max(o => o.Length);
+            int consoleWidth = Console.WindowWidth;
+            int indent = Math.Max((consoleWidth - maxLen) / 2, 0);
+            string padding = new string(' ', indent);
+
+            var padded = options
+                .Select(o => padding + o)
                 .ToArray();
 
             AnsiConsole.Write(
@@ -94,13 +97,12 @@ namespace SharedLibrary
 
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .PageSize(OptionCount)
-                    .AddChoices(paddedOptions)
+                    .PageSize(padded.Length)
+                    .AddChoices(padded)
             );
 
-            var trimmed = selection.Trim();
-            var indexStr = trimmed.Split('.')[0];
-            return int.Parse(indexStr);
+            var trimmed = selection.TrimStart();
+            return int.Parse(trimmed.Split('.')[0]);
         }
     }
 }

@@ -21,26 +21,70 @@ namespace SharedLibrary
             bool back = false;
             while (!back)
             {
-                AnsiConsole.Clear();
-                var choice = AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title("Shapes Menu")
-                        .AddChoices(
-                            "1. Create new shape",
-                            "2. List all shapes",
-                            "3. Update a shape",
-                            "4. Delete a shape",
-                            "5. Back to Main Menu"));
-                switch (choice[0])
+                ShowHeader();
+                int choice = PromptChoice();
+                Console.Clear();
+
+                switch (choice)
                 {
-                    case '1': CreateShape(); break;
-                    case '2': ListShapes(); break;
-                    case '3': UpdateShape(); break;
-                    case '4': DeleteShape(); break;
-                    case '5': back = true; break;
+                    case 1: CreateShape(); break;
+                    case 2: ListShapes(); break;
+                    case 3: UpdateShape(); break;
+                    case 4: DeleteShape(); break;
+                    case 5: back = true; break;
+                }
+
+                if (!back)
+                {
+                    AnsiConsole.MarkupLine("\n[grey]Tryck enter för att återvända…[/]");
+                    Console.ReadLine();
                 }
             }
         }
+
+        private void ShowHeader()
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.Write(
+                new FigletText("SHAPES")
+                    .Centered()
+                    .Color(Color.Aqua));
+            AnsiConsole.Write(new Rule());
+        }
+
+        private int PromptChoice()
+        {
+            var options = new[]
+            {
+        "1. Create new shape",
+        "2. List all shapes",
+        "3. Update a shape",
+        "4. Delete a shape",
+        "5. Back to Main Menu"
+    };
+
+            int maxLen = options.Max(o => o.Length);
+            int consoleWidth = Console.WindowWidth;
+            int indent = Math.Max((consoleWidth - maxLen) / 2, 0);
+            var padding = new string(' ', indent);
+
+            var padded = options.Select(o => padding + o).ToArray();
+
+            AnsiConsole.Write(
+                new Markup("[yellow]Välj ett alternativ:[/]")
+                    .Centered());
+            AnsiConsole.Write(new Rule());
+
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .PageSize(padded.Length)
+                    .AddChoices(padded)
+            );
+
+            var trimmed = selection.TrimStart();
+            return int.Parse(trimmed.Split('.')[0]);
+        }
+
 
         private void CreateShape()
         {
@@ -203,18 +247,50 @@ namespace SharedLibrary
 
         private void DeleteShape()
         {
-            int id = AnsiConsole.Prompt(new TextPrompt<int>("Enter Id of shape to delete:"));
-            var shape = _context.Shapes.Find(id);
-            if (shape != null)
+            var allShapes = _context.Shapes
+                .OrderBy(s => s.DateCreated)
+                .ToList();
+
+            if (!allShapes.Any())
             {
-                _context.Remove(shape);
-                _context.SaveChanges();
-                AnsiConsole.MarkupLine("[green]Deleted[/]");
+                AnsiConsole.MarkupLine("[red]Inga shapes att radera![/]");
+                AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+                Console.ReadLine();
+                return;
             }
-            else
-            {
-                AnsiConsole.MarkupLine("[red]Not found![/]");
-            }
+
+            var options = allShapes
+                .Select(s =>
+                {
+                    string paramDesc = s switch
+                    {
+                        Rectangle r => $"W={r.Width}, H={r.Height}",
+                        Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
+                        Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
+                        Rhombus h => $"S={h.SideLength}, H={h.Height}",
+                        _ => ""
+                    };
+                    return $"{s.Id}. {s.GetType().Name} — {paramDesc}";
+                })
+                .Prepend("0. Back")
+                .ToArray();
+
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Choose a shape to delete (0 = Back):")
+                    .PageSize(options.Length)
+                    .AddChoices(options)
+            );
+
+            if (selection.StartsWith("0"))
+                return;
+
+            int id = int.Parse(selection.Split('.')[0]);
+            var shape = _context.Shapes.Find(id)!;
+            shape.IsDeleted = true;
+            _context.SaveChanges();
+
+            AnsiConsole.MarkupLine("[green]Shape deleted![/]");
             AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
             Console.ReadLine();
         }

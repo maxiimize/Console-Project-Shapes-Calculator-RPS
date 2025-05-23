@@ -15,6 +15,7 @@ namespace DataAcessLayer.ModelsShapes
         public double Area { get; protected set; }
         public double Perimeter { get; protected set; }
         public DateTime DateCreated { get; set; }
+        public bool IsDeleted { get; set; } = false;
         public abstract void Calculate();
     }
 }
