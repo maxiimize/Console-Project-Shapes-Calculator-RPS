@@ -16,7 +16,7 @@ Slutligen förbättrade jag användargränssnittet med hjälp av Spectre.Console för 
 
 
 
-22-23/05-2025
+22/05-2025
 -----------
 
 Idag påbörjade jag arbetet med Shapes-modulen. Först skapade jag samtliga modellklasser (Shape, Rectangle, Parallelogram, Triangle, Rhombus) i DataAccessLayer-projektet, och satte upp databaskontexten (AllDbContext) med hjälp av Entity Framework Core och Code First-principen. Anledningen till att jag valde Code First var för att snabbt kunna definiera modellerna direkt i kod och låta ramverket automatiskt skapa databasen, vilket underlättar framtida förändringar av modellerna.
@@ -24,3 +24,19 @@ Idag påbörjade jag arbetet med Shapes-modulen. Först skapade jag samtliga modell
 Efter detta genererade jag de nödvändiga migrationerna och uppdaterade databasen för att återspegla dessa förändringar. Att regelbundet migrera databasen efter varje ändring gör att jag kan undvika framtida problem med dataintegritet.
 
 Nästa steg var att implementera grundläggande CRUD-funktionalitet (Create, Read, Update, Delete) för shapes i konsolapplikationen. Jag skapade därför en separat menyklass (ShapesMenu) som hanterar samtliga CRUD-operationer. Jag valde att använda Spectre.Console eftersom det ger ett modernt och tydligt gränssnitt, vilket förbättrar användarupplevelsen markant.
+
+
+
+
+26/05-2025
+-----------
+
+Idag lade jag till stöd för avbrytnings­alternativet (0) i både uppdaterings- och raderings­metoderna i ShapesMenu. 
+
+Detta gör att användaren kan avbryta och återgå till menyn snabbt om man ångrar sig eller valt fel utan att oavsiktligt göra ändringar i databasen. 
+
+Genom att tydligt informera om avbryt­funktionen i prompt­texten och uppdatera valideringen säkerställde jag en robust flödeskontroll och minskar risken för felaktiga Id-inmatningar.
+
+Jag förbättrade även CreateShape-flödet så att den nyskapade formen omedelbart visas i en tabell med kolumner för Id, typ, parametrar, area, omkrets och skapandedatum. 
+
+Den direkta visuella återkopplingen ger användaren trygghet i att formen sparats korrekt och att beräkningarna är korrekta, samtidigt som det underlättar felsökning och verifiering.
