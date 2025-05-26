@@ -87,10 +87,14 @@ namespace SharedLibrary
 
         private void CreateShape()
         {
+            var types = new[] { "Rectangle", "Parallelogram", "Triangle", "Rhombus", "Back to Shapes menu" };
             var type = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("Select shape type:")
-                    .AddChoices("Rectangle", "Parallelogram", "Triangle", "Rhombus"));
+                    .Title("Select shape type or choose 'Back' to go back to Shapes menu:")
+                    .AddChoices(types));
+
+            if (type == "Back to Shapes menu")
+                return;
 
             Shape shape = type switch
             {
@@ -195,8 +199,11 @@ namespace SharedLibrary
 
         private void UpdateShape()
         {
-            var allShapes = _context.Shapes.OrderBy(s => s.DateCreated).ToList();
-            if (!allShapes.Any())
+            var all = _context.Shapes
+                .OrderBy(s => s.DateCreated)
+                .ToList();
+
+            if (!all.Any())
             {
                 AnsiConsole.MarkupLine("[red]Inga shapes att uppdatera![/]");
                 AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
@@ -204,40 +211,47 @@ namespace SharedLibrary
                 return;
             }
 
-            var options = allShapes
-                .Select(s =>
+            var table = new Table().Border(TableBorder.Rounded);
+            table.AddColumn("Id");
+            table.AddColumn("Type");
+            table.AddColumn("Params");
+            table.AddColumn("Area");
+            table.AddColumn("Perimeter");
+            table.AddColumn("Created");
+
+            foreach (var s in all)
+            {
+                string paramDesc = s switch
                 {
-                    string paramDesc = s switch
-                    {
-                        Rectangle r => $"W={r.Width}, H={r.Height}",
-                        Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
-                        Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
-                        Rhombus h => $"S={h.SideLength}, H={h.Height}",
-                        _ => ""
-                    };
-                    return string.Format(
-                        "{0,3} | {1,-12} | {2,-30} | {3:yyyy-MM-dd HH:mm}",
-                        s.Id,
-                        s.GetType().Name,
-                        paramDesc,
-                        s.DateCreated
-                    );
-                })
-                .ToList();
+                    Rectangle r => $"W={r.Width}, H={r.Height}",
+                    Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
+                    Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
+                    Rhombus h => $"S={h.SideLength}, H={h.Height}",
+                    _ => string.Empty
+                };
 
-            options.Insert(0, "  0 | Back");
+                table.AddRow(
+                    s.Id.ToString(),
+                    s.GetType().Name,
+                    paramDesc,
+                    s.Area.ToString("F2"),
+                    s.Perimeter.ToString("F2"),
+                    s.DateCreated.ToString("yyyy-MM-dd HH:mm")
+                );
+            }
 
-            var selection = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[yellow]Choose a shape to update (0 = Back):[/]")
-                    .PageSize(Math.Min(options.Count, 10))
-                    .AddChoices(options)
+            AnsiConsole.Write(table);
+
+            int id = AnsiConsole.Prompt(
+                new TextPrompt<int>("[yellow]Ange [green]Id[/] på shape att uppdatera (eller [red]0[/] för att avbryta):[/]")
+                    .Validate(i => i == 0 || all.Any(s => s.Id == i)
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
             );
 
-            if (selection.StartsWith("  0"))
+            if (id == 0)
                 return;
 
-            var id = int.Parse(selection.Split('|')[0]);
             var shape = _context.Shapes.Find(id)!;
 
             switch (shape)
@@ -271,10 +285,15 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
+
         private void DeleteShape()
         {
-            var allShapes = _context.Shapes.OrderBy(s => s.DateCreated).ToList();
-            if (!allShapes.Any())
+            var all = _context.Shapes
+                .Where(s => !s.IsDeleted)
+                .OrderBy(s => s.DateCreated)
+                .ToList();
+
+            if (!all.Any())
             {
                 AnsiConsole.MarkupLine("[red]Inga shapes att radera![/]");
                 AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
@@ -282,42 +301,48 @@ namespace SharedLibrary
                 return;
             }
 
-            var options = allShapes
-                .Select(s =>
+            var table = new Table().Border(TableBorder.Rounded);
+            table.AddColumn("Id");
+            table.AddColumn("Type");
+            table.AddColumn("Params");
+            table.AddColumn("Area");
+            table.AddColumn("Perimeter");
+            table.AddColumn("Created");
+
+            foreach (var s in all)
+            {
+                string paramDesc = s switch
                 {
-                    string paramDesc = s switch
-                    {
-                        Rectangle r => $"W={r.Width}, H={r.Height}",
-                        Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
-                        Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
-                        Rhombus h => $"S={h.SideLength}, H={h.Height}",
-                        _ => ""
-                    };
-                    return string.Format(
-                        "{0,3} | {1,-12} | {2,-30} | {3:yyyy-MM-dd HH:mm}",
-                        s.Id,
-                        s.GetType().Name,
-                        paramDesc,
-                        s.DateCreated
-                    );
-                })
-                .ToList();
+                    Rectangle r => $"W={r.Width}, H={r.Height}",
+                    Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
+                    Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
+                    Rhombus h => $"S={h.SideLength}, H={h.Height}",
+                    _ => string.Empty
+                };
 
-            options.Insert(0, "  0 | Back");
+                table.AddRow(
+                    s.Id.ToString(),
+                    s.GetType().Name,
+                    paramDesc,
+                    s.Area.ToString("F2"),
+                    s.Perimeter.ToString("F2"),
+                    s.DateCreated.ToString("yyyy-MM-dd HH:mm")
+                );
+            }
 
-            var selection = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[yellow]Choose a shape to delete (0 = Back):[/]")
-                    .PageSize(Math.Min(options.Count, 10))
-                    .AddChoices(options)
+            AnsiConsole.Write(table);
+
+            int id = AnsiConsole.Prompt(
+                new TextPrompt<int>("[yellow]Ange [green]Id[/] på shape att radera (eller [red]0[/] för att avbryta):[/]")
+                    .Validate(i => i == 0 || all.Any(s => s.Id == i)
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
             );
 
-            if (selection.StartsWith("  0"))
+            if (id == 0)
                 return;
 
-            var id = int.Parse(selection.Split('|')[0]);
             var shape = _context.Shapes.Find(id)!;
-
             shape.IsDeleted = true;
             _context.SaveChanges();
 
@@ -325,6 +350,8 @@ namespace SharedLibrary
             AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
             Console.ReadLine();
         }
+
+
 
         private double PromptDouble(string name)
         {
