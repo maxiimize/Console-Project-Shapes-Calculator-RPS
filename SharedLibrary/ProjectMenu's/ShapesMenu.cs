@@ -126,6 +126,33 @@ namespace SharedLibrary
             _context.SaveChanges();
 
             AnsiConsole.MarkupLine("[green]Shape saved![/]");
+
+            var table = new Table().Border(TableBorder.Rounded);
+            table.AddColumn("Id");
+            table.AddColumn("Type");
+            table.AddColumn("Params");
+            table.AddColumn("Area");
+            table.AddColumn("Perimeter");
+            table.AddColumn("Created");
+
+            string paramDesc = shape switch
+            {
+                Rectangle r => $"W={r.Width}, H={r.Height}",
+                Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
+                Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
+                Rhombus h => $"S={h.SideLength}, H={h.Height}",
+                _ => string.Empty
+            };
+
+            table.AddRow(
+                shape.Id.ToString(),
+                shape.GetType().Name,
+                paramDesc,
+                shape.Area.ToString("F2"),
+                shape.Perimeter.ToString("F2"),
+                shape.DateCreated.ToString("yyyy-MM-dd HH:mm"));
+
+            AnsiConsole.Write(table);
             AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
             Console.ReadLine();
         }
