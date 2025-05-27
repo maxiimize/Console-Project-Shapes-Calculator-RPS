@@ -22,10 +22,10 @@ namespace SharedLibrary
 
                 switch (choice)
                 {
-                    case 1: Create(); break;
-                    case 2: ListAll(); break;
-                    case 3: Update(); break;
-                    case 4: Delete(); break;
+                    case 1: CreateCalculation(); break;
+                    case 2: ListCalculations(); break;
+                    case 3: UpdateCalculation(); break;
+                    case 4: DeleteCalculation(); break;
                     case 5: back = true; break;
                 }
 
@@ -78,9 +78,34 @@ namespace SharedLibrary
             var trimmed = selection.TrimStart();
             return int.Parse(trimmed.Split('.')[0]);
         }
-        
 
-        void Create()
+        private void RenderTable()
+        {
+            var all = _context.Calculations.OrderBy(c => c.Id).ToList();
+            var table = new Table().Border(TableBorder.Rounded)
+                .AddColumn("Id")
+                .AddColumn("Tal1")
+                .AddColumn("Tal2")
+                .AddColumn("Op")
+                .AddColumn("Result")
+                .AddColumn("Datum");
+
+            foreach (var c in all)
+            {
+                table.AddRow(
+                    c.Id.ToString(),
+                    c.Operand1.ToString("0.##"),
+                    c.Operand2?.ToString("0.##") ?? "-",
+                    c.Operator,
+                    c.Result.ToString("0.##"),
+                    c.DateCreated.ToString("yyyy-MM-dd HH:mm"));
+            }
+
+            AnsiConsole.Write(table);
+        }
+
+
+        void CreateCalculation()
         {
             double t1 = PromptDouble("Tal 1");
             string op = AnsiConsole.Prompt(
@@ -116,32 +141,17 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-        void ListAll()
+        void ListCalculations()
         {
-            var all = _context.Calculations.OrderBy(c => c.Id).ToList();
-            var table = new Table().Border(TableBorder.Rounded)
-                .AddColumn("Id").AddColumn("Tal1").AddColumn("Tal2")
-                .AddColumn("Op").AddColumn("Result").AddColumn("Datum");
-
-            foreach (var c in all)
-            {
-                table.AddRow(
-                    c.Id.ToString(),
-                    c.Operand1.ToString("0.##"),
-                    c.Operand2?.ToString("0.##") ?? "-",
-                    c.Operator,
-                    c.Result.ToString("0.##"),
-                    c.DateCreated.ToString("yyyy-MM-dd HH:mm"));
-            }
-
-            AnsiConsole.Write(table);
+            RenderTable();
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
 
-        void Update()
+
+        void UpdateCalculation()
         {
-            ListAll();
+            RenderTable();
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("Ange Id att uppdatera (0 för avbryt):")
                     .Validate(i => i >= 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Ogiltigt[/]")));
@@ -162,9 +172,9 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-        void Delete()
+        void DeleteCalculation()
         {
-            ListAll();
+            RenderTable();
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("Ange Id att radera (0 för avbryt):")
                     .Validate(i => i >= 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Ogiltigt[/]")));
