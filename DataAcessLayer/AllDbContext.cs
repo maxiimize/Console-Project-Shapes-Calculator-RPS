@@ -40,6 +40,9 @@ namespace DataAcessLayer
                 .HasValue<Triangle>("Triangle")
                 .HasValue<Rhombus>("Rhombus");
 
+            modelBuilder.Entity<Calculator>()
+                .HasQueryFilter(c => !c.IsDeleted);
+
             modelBuilder.Entity<Calculator>(b =>
             {
                 b.HasKey(c => c.Id);

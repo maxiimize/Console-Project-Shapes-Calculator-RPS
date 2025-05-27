@@ -152,8 +152,9 @@ namespace SharedLibrary
         void UpdateCalculation()
         {
             RenderTable();
+
             int id = AnsiConsole.Prompt(
-                new TextPrompt<int>("Ange Id att uppdatera (0 för avbryt):")
+                new TextPrompt<int>("[yellow]Ange [green]Id[/] på den kalkylation som du vill uppdatera (eller [red]0[/] för att avbryta):[/]")
                     .Validate(i => i >= 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Ogiltigt[/]")));
             if (id == 0) return;
 
@@ -175,15 +176,16 @@ namespace SharedLibrary
         void DeleteCalculation()
         {
             RenderTable();
+
             int id = AnsiConsole.Prompt(
-                new TextPrompt<int>("Ange Id att radera (0 för avbryt):")
+                new TextPrompt<int>("[yellow]Ange [green]Id[/] på den kalkylation som du vill radera (eller [red]0[/] för att avbryta):[/]")
                     .Validate(i => i >= 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Ogiltigt[/]")));
             if (id == 0) return;
 
             var rec = _context.Calculations.Find(id);
             if (rec != null)
             {
-                _context.Calculations.Remove(rec);
+                rec.IsDeleted = true;
                 _context.SaveChanges();
                 AnsiConsole.MarkupLine("[green]Raderad![/]");
             }
