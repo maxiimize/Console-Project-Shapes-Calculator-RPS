@@ -16,10 +16,7 @@ namespace SharedLibrary
             bool back = false;
             while (!back)
             {
-                AnsiConsole.Clear();
-                AnsiConsole.Write(new FigletText("CALCULATOR").Centered().Color(Color.Red));
-                AnsiConsole.Write(new Rule());
-
+                ShowHeader();
                 int choice = PromptChoice();
                 Console.Clear();
 
@@ -31,9 +28,25 @@ namespace SharedLibrary
                     case 4: Delete(); break;
                     case 5: back = true; break;
                 }
-            }
+
+                if (!back)
+                {
+
+                }
+            } 
         }
 
+            private void ShowHeader()
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.Write(
+                new FigletText("CONSOLE")
+                    .Centered()
+                    .Color(Color.Red));
+            AnsiConsole.Write(new Rule());
+        }
+            
+        
         private int PromptChoice()
         {
             var options = new[]
