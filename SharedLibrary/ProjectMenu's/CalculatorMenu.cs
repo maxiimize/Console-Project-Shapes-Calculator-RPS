@@ -17,7 +17,7 @@ namespace SharedLibrary
             while (!back)
             {
                 AnsiConsole.Clear();
-                AnsiConsole.Write(new FigletText("CALCULATOR").Centered().Color(Color.Green));
+                AnsiConsole.Write(new FigletText("CALCULATOR").Centered().Color(Color.Red));
                 AnsiConsole.Write(new Rule());
 
                 int choice = PromptChoice();
