@@ -107,13 +107,18 @@ namespace SharedLibrary
 
         void CreateCalculation()
         {
-            double t1 = PromptDouble("Tal 1");
             string op = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Välj operator:")
-                    .AddChoices("+", "-", "*", "/", "√", "%"));
+                    .AddChoices("+", "-", "*", "/", "√", "%")
+            );
 
-            double? t2 = op != "√" ? PromptDouble("Tal 2") : (double?)null;
+            double t1 = PromptDouble("Tal 1");
+
+            double? t2 = null;
+            if (op != "√")
+                t2 = PromptDouble("Tal 2");
+
             double result = op switch
             {
                 "+" => Math.Round(t1 + t2!.Value, 2),
@@ -136,10 +141,29 @@ namespace SharedLibrary
             _context.Calculations.Add(rec);
             _context.SaveChanges();
 
-            AnsiConsole.MarkupLine($"[green]Resultat: {result:0.##}[/]");
+            var table = new Table().Border(TableBorder.Rounded)
+                .AddColumn("Id")
+                .AddColumn("Tal1")
+                .AddColumn("Tal2")
+                .AddColumn("Op")
+                .AddColumn("Result")
+                .AddColumn("Datum");
+
+            table.AddRow(
+                rec.Id.ToString(),
+                rec.Operand1.ToString("0.##"),
+                rec.Operand2?.ToString("0.##") ?? "-",
+                rec.Operator,
+                rec.Result.ToString("0.##"),
+                rec.DateCreated.ToString("yyyy-MM-dd HH:mm")
+            );
+
+            AnsiConsole.MarkupLine("[green]Beräkningen är sparad:[/]");
+            AnsiConsole.Write(table);
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
+
 
         void ListCalculations()
         {
