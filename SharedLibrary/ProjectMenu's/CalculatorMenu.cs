@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using DataAcessLayer;
 using DataAcessLayer.ModelsCalculator;
 using Spectre.Console;
@@ -33,10 +34,10 @@ namespace SharedLibrary
                 {
 
                 }
-            } 
+            }
         }
 
-            private void ShowHeader()
+        private void ShowHeader()
         {
             AnsiConsole.Clear();
             AnsiConsole.Write(
@@ -128,16 +129,16 @@ namespace SharedLibrary
         void CreateCalculation()
         {
             string op = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("Välj operator:")
-                    .AddChoices("+", "-", "*", "/", "√", "%")
-            );
+            new SelectionPrompt<string>()
+            .Title("Välj operator:")
+            .AddChoices("+", "-", "*", "/", "√", "%")
+        );
 
-            double t1 = PromptDouble("Tal 1");
 
-            double? t2 = null;
-            if (op != "√")
-                t2 = PromptDouble("Tal 2");
+            double t1 = PromptDouble("Tal 1", nonNegative: op == "√");
+            double? t2 = op != "√"
+                ? PromptDouble("Tal 2")    
+                : (double?)null;
 
             double result = op switch
             {
@@ -197,17 +198,33 @@ namespace SharedLibrary
         {
             RenderTable();
 
+            var validIds = _context.Calculations
+                                   .Select(c => c.Id)
+                                   .ToList();
+
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("[yellow]Ange [green]Id[/] på den kalkylation som du vill uppdatera (eller [red]0[/] för att avbryta):[/]")
-                    .Validate(i => i >= 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Ogiltigt[/]")));
-            if (id == 0) return;
+                    .Validate(i => i == 0 || validIds.Contains(i)
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
+            );
+            if (id == 0)
+                return;
 
-            var rec = _context.Calculations.Find(id);
-            if (rec == null) return;
+            var rec = _context.Calculations.Find(id)!;
 
-            rec.Operand1 = PromptDouble("Nytt Tal 1");
-            rec.Operator = AnsiConsole.Prompt(new SelectionPrompt<string>().AddChoices("+", "-", "*", "/", "√", "%"));
-            rec.Operand2 = rec.Operator != "√" ? PromptDouble("Nytt Tal 2") : null;
+            string op = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Välj ny operator:")
+                    .AddChoices("+", "-", "*", "/", "√", "%")
+            );
+
+            rec.Operand1 = PromptDouble("Nytt Tal 1", nonNegative: op == "√");
+            rec.Operand2 = op != "√"
+                ? PromptDouble("Nytt Tal 2")
+                : null;
+
+            rec.Operator = op;
             rec.Result = opResult(rec);
             rec.DateCreated = DateTime.Now;
             _context.SaveChanges();
@@ -217,31 +234,44 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
+
+
         void DeleteCalculation()
         {
             RenderTable();
 
+            var validIds = _context.Calculations
+                                   .Select(c => c.Id)
+                                   .ToList();
+
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("[yellow]Ange [green]Id[/] på den kalkylation som du vill radera (eller [red]0[/] för att avbryta):[/]")
-                    .Validate(i => i >= 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Ogiltigt[/]")));
-            if (id == 0) return;
+                    .Validate(i => i == 0 || validIds.Contains(i)
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
+            );
+            if (id == 0)
+                return;
 
-            var rec = _context.Calculations.Find(id);
-            if (rec != null)
-            {
-                rec.IsDeleted = true;
-                _context.SaveChanges();
-                AnsiConsole.MarkupLine("[green]Raderad![/]");
-            }
+            var rec = _context.Calculations.Find(id)!;
+            rec.IsDeleted = true;
+            _context.SaveChanges();
 
+            AnsiConsole.MarkupLine("[green]Raderad![/]");
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
 
-        double PromptDouble(string label) =>
+
+        double PromptDouble(string label, bool nonNegative = false) =>
             AnsiConsole.Prompt(
                 new TextPrompt<double>($"{label}:")
-                    .Validate(n => n >= 0 ? ValidationResult.Success() : ValidationResult.Error("[red]Måste vara ≥ 0[/]")));
+                    .Validate(n =>
+                        !nonNegative || n >= 0
+                            ? ValidationResult.Success()
+                            : ValidationResult.Error("[red]Måste vara ≥ 0[/]"))
+        );
+
 
         private double opResult(Calculator rec) =>
             rec.Operator switch
