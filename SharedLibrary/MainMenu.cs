@@ -7,19 +7,22 @@ namespace SharedLibrary
     public class MainMenu
     {
         private readonly ShapesMenu _shapesMenu;
+        private readonly CalculatorMenu _calcMenu;
+
         private readonly string[] _menuOptions = new[]
         {
             "Shapes",
-            "Calculator (Coming soon!)",
+            "Calculator",
             "Rock-Paper-Scissors (Coming soon!)",
             "Exit"
         };
 
         public int OptionCount => _menuOptions.Length;
 
-        public MainMenu(ShapesMenu shapesMenu)
+        public MainMenu(ShapesMenu shapesMenu, CalculatorMenu calcMenu)
         {
             _shapesMenu = shapesMenu;
+            _calcMenu = calcMenu;
         }
 
         public void Run()
@@ -39,8 +42,8 @@ namespace SharedLibrary
                         break;
 
                     case 2:
-                        // Placeholder för Calculator
-                        AnsiConsole.MarkupLine("[yellow]Calculator är på gång – kommer snart![/]");
+                        // Kör fullständig Shapes-modul
+                        _calcMenu.Run();
                         break;
 
                     case 3:

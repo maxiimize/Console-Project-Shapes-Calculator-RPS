@@ -55,10 +55,10 @@ namespace SharedLibrary
         {
             var options = new[]
             {
-                "1. Create new shape",
+                "1. CreateCalculation new shape",
                 "2. List all shapes",
-                "3. Update a shape",
-                "4. Delete a shape",
+                "3. UpdateCalculation a shape",
+                "4. DeleteCalculation a shape",
                 "5. Back to Main Menu"
             };
 
@@ -243,7 +243,7 @@ namespace SharedLibrary
             AnsiConsole.Write(table);
 
             int id = AnsiConsole.Prompt(
-                new TextPrompt<int>("[yellow]Ange [green]Id[/] på shape att uppdatera (eller [red]0[/] för att avbryta):[/]")
+                new TextPrompt<int>("[yellow]Ange [green]Id[/] på den shape du vill uppdatera (eller [red]0[/] för att avbryta):[/]")
                     .Validate(i => i == 0 || all.Any(s => s.Id == i)
                         ? ValidationResult.Success()
                         : ValidationResult.Error("[red]Ogiltigt Id[/]"))

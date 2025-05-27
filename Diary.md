@@ -40,3 +40,14 @@ Genom att tydligt informera om avbryt­funktionen i prompt­texten och uppdatera v
 Jag förbättrade även CreateShape-flödet så att den nyskapade formen omedelbart visas i en tabell med kolumner för Id, typ, parametrar, area, omkrets och skapandedatum. 
 
 Den direkta visuella återkopplingen ger användaren trygghet i att formen sparats korrekt och att beräkningarna är korrekta, samtidigt som det underlättar felsökning och verifiering.
+
+
+
+27/05-2025
+-----------
+Idag påbörjade jag kalkylator-modulen. Jag kapslade in all kalkylatorlogik i klassen jag skapade, CalculatorMenu för att hålla koden modulär och återanvändbar, och injicerar AllDbContext via DI för att använda samma databaskontext som Shapes och RPS. 
+
+Jag visar resultatet direkt i en Spectre.Console-tabell för omedelbar visuell återkoppling, vilket ökar användarens förtroende och underlättar felsökning. 
+
+ID-valideringen inför jag för att förhindra felaktiga uppdateringar eller raderingar, och soft delete med IsDeleted plus globalt filter skyddar mot oavsiktlig databorttagning. Tillsammans ger dessa val ett strukturerat, robust och användarvänligt flöde som är lätt att underhålla och vidareutveckla.
+

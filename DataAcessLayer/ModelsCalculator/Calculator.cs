@@ -14,5 +14,6 @@ namespace DataAcessLayer.ModelsCalculator
         public string Operator { get; set; }     
         public double Result { get; set; }
         public DateTime DateCreated { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }
