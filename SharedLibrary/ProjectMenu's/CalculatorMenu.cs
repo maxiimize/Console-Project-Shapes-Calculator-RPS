@@ -45,23 +45,23 @@ namespace SharedLibrary
                     .Color(Color.Red));
             AnsiConsole.Write(new Rule());
         }
-            
-        
+
         private int PromptChoice()
         {
             var options = new[]
             {
-                "1. Ny beräkning",
-                "2. Lista alla",
-                "3. Uppdatera",
-                "4. Radera",
-                "5. Tillbaka"
+                "1. Start calculation",
+                "2. List all calculations",
+                "3. Update a calculation",
+                "4. Delete a calculation",
+                "5. Back to Main Menu"
             };
 
             int maxLen = options.Max(o => o.Length);
             int consoleWidth = Console.WindowWidth;
             int indent = Math.Max((consoleWidth - maxLen) / 2, 0);
             var padding = new string(' ', indent);
+
             var padded = options.Select(o => padding + o).ToArray();
 
             AnsiConsole.Write(
@@ -75,8 +75,10 @@ namespace SharedLibrary
                     .AddChoices(padded)
             );
 
-            return int.Parse(selection.TrimStart().Split('.')[0]);
+            var trimmed = selection.TrimStart();
+            return int.Parse(trimmed.Split('.')[0]);
         }
+        
 
         void Create()
         {
