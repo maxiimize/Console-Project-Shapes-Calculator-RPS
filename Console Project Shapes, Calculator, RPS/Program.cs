@@ -25,6 +25,7 @@ namespace ConsoleProject.MainApp
                     );
 
                     services.AddTransient<ShapesMenu>();
+                    services.AddTransient<CalculatorMenu>();
                     services.AddTransient<MainMenu>();
                 })
                 .Build();
