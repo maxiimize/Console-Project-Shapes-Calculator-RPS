@@ -22,7 +22,7 @@ namespace SharedLibrary
 
                 switch (choice)
                 {
-                    case 1: CreateCalculation(); break;
+                    case 1: StartCalculations(); break;
                     case 2: ListCalculations(); break;
                     case 3: UpdateCalculation(); break;
                     case 4: DeleteCalculation(); break;
@@ -104,6 +104,26 @@ namespace SharedLibrary
             AnsiConsole.Write(table);
         }
 
+        private void StartCalculations()
+        {
+            bool again = true;
+            while (again)
+            {
+                CreateCalculation();
+
+                var next = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Vad vill du göra nu?")
+                        .AddChoices(new[] {
+                            "Ny kalkylation",
+                            "Tillbaka till menyn"
+                        })
+                );
+
+                again = next == "Ny kalkylation";
+                Console.Clear();
+            }
+        }
 
         void CreateCalculation()
         {
