@@ -36,7 +36,7 @@ namespace SharedLibrary
 
                 if (!back)
                 {
-                    
+
                 }
             }
         }
@@ -100,26 +100,26 @@ namespace SharedLibrary
             {
                 "Rectangle" => new Rectangle
                 {
-                    Width = PromptDouble("Width"),
-                    Height = PromptDouble("Height")
+                    Width = PromptDouble("Width", "rektangelns bredd"),
+                    Height = PromptDouble("Height", "rektangelns höjd")
                 },
                 "Parallelogram" => new Parallelogram
                 {
-                    BaseLength = PromptDouble("Base length"),
-                    SideLength = PromptDouble("Side length"),
-                    Height = PromptDouble("Height")
+                    BaseLength = PromptDouble("Base length", "parallellogrammets baslängd"),
+                    SideLength = PromptDouble("Side length", "parallellogrammets sidlängd"),
+                    Height = PromptDouble("Height", "parallellogrammets höjd")
                 },
                 "Triangle" => new Triangle
                 {
-                    BaseLength = PromptDouble("Base length"),
-                    Height = PromptDouble("Height"),
-                    SideA = PromptDouble("Side A"),
-                    SideB = PromptDouble("Side B")
+                    BaseLength = PromptDouble("Base length", "triangelns baslängd"),
+                    Height = PromptDouble("Height", "triangelns höjd"),
+                    SideA = PromptDouble("Side A", "triangelns sida A"),
+                    SideB = PromptDouble("Side B", "triangelns sida B")
                 },
                 "Rhombus" => new Rhombus
                 {
-                    SideLength = PromptDouble("Side length"),
-                    Height = PromptDouble("Height")
+                    SideLength = PromptDouble("Side length", "rombens sidlängd"),
+                    Height = PromptDouble("Height", "rombens höjd")
                 },
                 _ => throw new InvalidOperationException()
             };
@@ -164,6 +164,15 @@ namespace SharedLibrary
         private void ListShapes()
         {
             var all = _context.Shapes.OrderByDescending(c => c.DateCreated).ToList();
+
+            if (!all.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]Inga shapes har skapats än. Skapa en shape först![/]");
+                AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+                Console.ReadLine();
+                return;
+            }
+
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
             table.AddColumn("Type");
@@ -244,9 +253,14 @@ namespace SharedLibrary
 
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("[yellow]Ange [green]Id[/] på den shape du vill uppdatera (eller [red]0[/] för att avbryta):[/]")
-                    .Validate(i => i == 0 || all.Any(s => s.Id == i)
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt Id-nummer (heltal). Text som 'bajskorv' fungerar inte![/]")
+                    .Validate(i =>
+                    {
+                        if (i == 0) return ValidationResult.Success();
+                        if (!all.Any(s => s.Id == i))
+                            return ValidationResult.Error($"[red]Fel: Id {i} finns inte i listan. Välj ett Id från tabellen ovan.[/]");
+                        return ValidationResult.Success();
+                    })
             );
 
             if (id == 0)
@@ -257,23 +271,23 @@ namespace SharedLibrary
             switch (shape)
             {
                 case Rectangle r:
-                    r.Width = PromptDouble("New Width");
-                    r.Height = PromptDouble("New Height");
+                    r.Width = PromptDouble("New Width", "rektangelns nya bredd");
+                    r.Height = PromptDouble("New Height", "rektangelns nya höjd");
                     break;
                 case Parallelogram p:
-                    p.BaseLength = PromptDouble("New Base length");
-                    p.SideLength = PromptDouble("New Side length");
-                    p.Height = PromptDouble("New Height");
+                    p.BaseLength = PromptDouble("New Base length", "parallellogrammets nya baslängd");
+                    p.SideLength = PromptDouble("New Side length", "parallellogrammets nya sidlängd");
+                    p.Height = PromptDouble("New Height", "parallellogrammets nya höjd");
                     break;
                 case Triangle t:
-                    t.BaseLength = PromptDouble("New Base length");
-                    t.Height = PromptDouble("New Height");
-                    t.SideA = PromptDouble("New Side A");
-                    t.SideB = PromptDouble("New Side B");
+                    t.BaseLength = PromptDouble("New Base length", "triangelns nya baslängd");
+                    t.Height = PromptDouble("New Height", "triangelns nya höjd");
+                    t.SideA = PromptDouble("New Side A", "triangelns nya sida A");
+                    t.SideB = PromptDouble("New Side B", "triangelns nya sida B");
                     break;
                 case Rhombus h:
-                    h.SideLength = PromptDouble("New Side length");
-                    h.Height = PromptDouble("New Height");
+                    h.SideLength = PromptDouble("New Side length", "rombens nya sidlängd");
+                    h.Height = PromptDouble("New Height", "rombens nya höjd");
                     break;
             }
 
@@ -334,9 +348,14 @@ namespace SharedLibrary
 
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("[yellow]Ange [green]Id[/] på shape att radera (eller [red]0[/] för att avbryta):[/]")
-                    .Validate(i => i == 0 || all.Any(s => s.Id == i)
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt Id-nummer (heltal). Text som 'bajskorv' fungerar inte![/]")
+                    .Validate(i =>
+                    {
+                        if (i == 0) return ValidationResult.Success();
+                        if (!all.Any(s => s.Id == i))
+                            return ValidationResult.Error($"[red]Fel: Id {i} finns inte i listan. Välj ett Id från tabellen ovan.[/]");
+                        return ValidationResult.Success();
+                    })
             );
 
             if (id == 0)
@@ -351,13 +370,31 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-
-
-        private double PromptDouble(string name)
+        private double PromptDouble(string name, string swedishDescription = null)
         {
+            string description = swedishDescription ?? name.ToLower();
+
             return AnsiConsole.Prompt(
                 new TextPrompt<double>($"Enter {name}:")
-                    .Validate(n => n > 0 ? ValidationResult.Success() : ValidationResult.Error("Must be > 0")));
+                    .ValidationErrorMessage($"[red]Fel: Du måste ange ett giltigt tal för {description}. Text som 'bajskorv' fungerar inte![/]")
+                    .Validate(n =>
+                    {
+                        if (n <= 0)
+                            return ValidationResult.Error($"[red]Fel: {char.ToUpper(description[0]) + description.Substring(1)} måste vara större än 0![/]");
+
+                        if (double.IsInfinity(n))
+                            return ValidationResult.Error($"[red]Fel: Talet för {description} är för stort. Ange ett mindre tal![/]");
+
+                        if (double.IsNaN(n))
+                            return ValidationResult.Error($"[red]Fel: Ogiltigt tal för {description}. Försök igen![/]");
+
+                        // Extra validering för rimliga värden
+                        if (n > 1000000)
+                            return ValidationResult.Error($"[red]Fel: {char.ToUpper(description[0]) + description.Substring(1)} verkar orimligt stor (>1000000). Kontrollera värdet![/]");
+
+                        return ValidationResult.Success();
+                    })
+            );
         }
     }
 }
