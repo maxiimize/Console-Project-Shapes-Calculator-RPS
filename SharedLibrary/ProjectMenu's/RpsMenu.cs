@@ -136,11 +136,28 @@ namespace SharedLibrary
                 $"{game.WinRate:F2} %"
             );
 
-            AnsiConsole.MarkupLine("[green]Spelet är sparat![/]");
+            switch (outcome)
+            {
+                case "Vinst":
+                    AnsiConsole.MarkupLine("  [bold green]Grattis! Du vann![/]");
+                    break;
+                case "Förlust":
+                    AnsiConsole.MarkupLine("  [bold red]Tyvärr! Du förlorade![/]");
+                    break;
+                case "Oavgjort":
+                    AnsiConsole.MarkupLine("  [yellow]Det blev oavgjort![/]");
+                    break;
+            }
+
             AnsiConsole.Write(table);
+
+            AnsiConsole.MarkupLine("[green]Spelet är sparat![/]");
+
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
+
+
 
         private void ListAllGames()
         {
