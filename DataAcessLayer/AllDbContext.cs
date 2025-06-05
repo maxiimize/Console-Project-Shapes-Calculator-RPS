@@ -1,20 +1,17 @@
-﻿using DataAcessLayer.ModelsShapes;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DataAcessLayer.ModelsCalculator;
+﻿using DataAcessLayer.ModelsCalculator;
 using DataAcessLayer.ModelsRPS;
 using DataAcessLayer.ModelsShapes;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace DataAcessLayer
 {
     public class AllDbContext : DbContext
     {
         public AllDbContext(DbContextOptions<AllDbContext> options)
-        : base(options) { }
+            : base(options)
+        {
+        }
 
         public DbSet<Shape> Shapes { get; set; }
         public DbSet<Rectangle> Rectangles { get; set; }
@@ -29,7 +26,7 @@ namespace DataAcessLayer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<Shape>()
                 .HasQueryFilter(s => !s.IsDeleted);
 
@@ -40,6 +37,7 @@ namespace DataAcessLayer
                 .HasValue<Triangle>("Triangle")
                 .HasValue<Rhombus>("Rhombus");
 
+            // --- Calculator-konfiguration ---
             modelBuilder.Entity<Calculator>()
                 .HasQueryFilter(c => !c.IsDeleted);
 
@@ -55,12 +53,23 @@ namespace DataAcessLayer
             modelBuilder.Entity<RPS>(b =>
             {
                 b.HasKey(r => r.Id);
-                b.Property(r => r.PlayerMove).IsRequired();
-                b.Property(r => r.ComputerMove).IsRequired();
-                b.Property(r => r.Outcome).IsRequired();
-                b.Property(r => r.DatePlayed).IsRequired();
-            });
 
+                b.Property(r => r.PlayerMove)
+                    .IsRequired();
+
+                b.Property(r => r.ComputerMove)
+                    .IsRequired();
+
+                b.Property(r => r.Outcome)
+                    .IsRequired();
+
+                b.Property(r => r.DatePlayed)
+                    .IsRequired();
+
+                b.Property(r => r.WinRate)
+                    .HasColumnType("decimal(5,2)")
+                    .IsRequired();
+            });
         }
     }
 }
