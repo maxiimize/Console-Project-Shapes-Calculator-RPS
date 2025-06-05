@@ -41,7 +41,7 @@ namespace SharedLibrary
         {
             AnsiConsole.Clear();
             AnsiConsole.Write(
-                new FigletText("CONSOLE")
+                new FigletText("CALCULATOR")
                     .Centered()
                     .Color(Color.Red));
             AnsiConsole.Write(new Rule());
@@ -82,7 +82,7 @@ namespace SharedLibrary
 
         private void RenderTable()
         {
-            var all = _context.Calculations.OrderBy(c => c.Id).ToList();
+            var all = _context.Calculations.OrderByDescending(c => c.DateCreated).ToList();
             var table = new Table().Border(TableBorder.Rounded)
                 .AddColumn("Id")
                 .AddColumn("Tal1")

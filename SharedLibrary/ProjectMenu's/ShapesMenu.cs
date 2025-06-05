@@ -163,7 +163,7 @@ namespace SharedLibrary
 
         private void ListShapes()
         {
-            var all = _context.Shapes.OrderBy(s => s.DateCreated).ToList();
+            var all = _context.Shapes.OrderByDescending(c => c.DateCreated).ToList();
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
             table.AddColumn("Type");
