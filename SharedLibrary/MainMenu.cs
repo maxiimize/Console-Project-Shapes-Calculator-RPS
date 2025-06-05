@@ -8,21 +8,24 @@ namespace SharedLibrary
     {
         private readonly ShapesMenu _shapesMenu;
         private readonly CalculatorMenu _calcMenu;
+        private readonly RpsMenu _rpsMenu;     
+
 
         private readonly string[] _menuOptions = new[]
         {
             "Shapes",
             "Calculator",
-            "Rock-Paper-Scissors (Coming soon!)",
+            "Rock-Paper-Scissors",  
             "Exit"
         };
 
         public int OptionCount => _menuOptions.Length;
 
-        public MainMenu(ShapesMenu shapesMenu, CalculatorMenu calcMenu)
+        public MainMenu(ShapesMenu shapesMenu, CalculatorMenu calcMenu, RpsMenu rpsMenu)
         {
             _shapesMenu = shapesMenu;
             _calcMenu = calcMenu;
+            _rpsMenu = rpsMenu;
         }
 
         public void Run()
@@ -37,18 +40,18 @@ namespace SharedLibrary
                 switch (choice)
                 {
                     case 1:
-                        // Kör fullständig Shapes-modul
+                        // Kör Shapes-modulen
                         _shapesMenu.Run();
                         break;
 
                     case 2:
-                        // Kör fullständig Shapes-modul
+                        // Kör Calculator-modulen
                         _calcMenu.Run();
                         break;
 
                     case 3:
-                        // Placeholder för RPS
-                        AnsiConsole.MarkupLine("[yellow]Rock-Paper-Scissors är på gång – kommer snart![/]");
+                        // Kör Rock-Paper-Scissors-modulen
+                        _rpsMenu.Run();
                         break;
 
                     case 4:
@@ -61,9 +64,10 @@ namespace SharedLibrary
                         break;
                 }
 
+                // När inte exit, rensa skärmen inför nästa loop
                 if (!exit)
                 {
-                    
+                    Console.Clear();
                 }
             }
         }

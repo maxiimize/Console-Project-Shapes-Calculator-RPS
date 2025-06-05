@@ -20,7 +20,7 @@ class Program
                     opts.UseSqlServer(ctx.Configuration.GetConnectionString("DefaultConnection"))
                 );
 
-                services.AddTransient<MainMenu>();
+                services.AddTransient<RpsMenu>();
             })
             .Build();
 
@@ -30,7 +30,7 @@ class Program
             db.Database.Migrate();
         }
 
-        var menu = host.Services.GetRequiredService<MainMenu>();
+        var menu = host.Services.GetRequiredService<RpsMenu>();
         menu.Run();
     }
 }
