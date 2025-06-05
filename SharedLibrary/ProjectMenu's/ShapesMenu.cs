@@ -55,10 +55,10 @@ namespace SharedLibrary
         {
             var options = new[]
             {
-                "1. CreateCalculation new shape",
+                "1. Create new shape",
                 "2. List all shapes",
-                "3. UpdateCalculation a shape",
-                "4. DeleteCalculation a shape",
+                "3. Update a shape",
+                "4. Delete a shape",
                 "5. Back to Main Menu"
             };
 

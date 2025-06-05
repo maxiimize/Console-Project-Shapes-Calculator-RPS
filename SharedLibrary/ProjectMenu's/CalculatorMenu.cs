@@ -41,7 +41,7 @@ namespace SharedLibrary
         {
             AnsiConsole.Clear();
             AnsiConsole.Write(
-                new FigletText("CONSOLE")
+                new FigletText("CALCULATOR")
                     .Centered()
                     .Color(Color.Red));
             AnsiConsole.Write(new Rule());
@@ -128,63 +128,79 @@ namespace SharedLibrary
 
         void CreateCalculation()
         {
-            string op = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-            .Title("Välj operator:")
-            .AddChoices("+", "-", "*", "/", "√", "%")
-        );
+            bool calculationSuccessful = false;
 
-
-            double t1 = PromptDouble("Tal 1", nonNegative: op == "√");
-            double? t2 = op != "√"
-                ? PromptDouble("Tal 2")    
-                : (double?)null;
-
-            double result = op switch
+            while (!calculationSuccessful)
             {
-                "+" => Math.Round(t1 + t2!.Value, 2),
-                "-" => Math.Round(t1 - t2!.Value, 2),
-                "*" => Math.Round(t1 * t2!.Value, 2),
-                "/" => t2 == 0 ? throw new DivideByZeroException() : Math.Round(t1 / t2!.Value, 2),
-                "√" => Math.Round(Math.Sqrt(t1), 2),
-                "%" => t2 == 0 ? throw new DivideByZeroException() : Math.Round(t1 % t2!.Value, 2),
-                _ => throw new InvalidOperationException()
-            };
+                try
+                {
+                    string op = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                        .Title("Välj operator:")
+                        .AddChoices("+", "-", "*", "/", "√", "%")
+                    );
 
-            var rec = new Calculator
-            {
-                Operand1 = t1,
-                Operand2 = t2,
-                Operator = op,
-                Result = result,
-                DateCreated = DateTime.Now
-            };
-            _context.Calculations.Add(rec);
-            _context.SaveChanges();
+                    double t1 = PromptDouble("Tal 1", nonNegative: op == "√");
+                    double? t2 = op != "√"
+                        ? PromptDouble("Tal 2")
+                        : (double?)null;
 
-            var table = new Table().Border(TableBorder.Rounded)
-                .AddColumn("Id")
-                .AddColumn("Tal1")
-                .AddColumn("Tal2")
-                .AddColumn("Op")
-                .AddColumn("Result")
-                .AddColumn("Datum");
+                    double result = op switch
+                    {
+                        "+" => Math.Round(t1 + t2!.Value, 2),
+                        "-" => Math.Round(t1 - t2!.Value, 2),
+                        "*" => Math.Round(t1 * t2!.Value, 2),
+                        "/" => t2 == 0 ? throw new DivideByZeroException() : Math.Round(t1 / t2!.Value, 2),
+                        "√" => Math.Round(Math.Sqrt(t1), 2),
+                        "%" => t2 == 0 ? throw new DivideByZeroException() : Math.Round(t1 % t2!.Value, 2),
+                        _ => throw new InvalidOperationException()
+                    };
 
-            table.AddRow(
-                rec.Id.ToString(),
-                rec.Operand1.ToString("0.##"),
-                rec.Operand2?.ToString("0.##") ?? "-",
-                rec.Operator,
-                rec.Result.ToString("0.##"),
-                rec.DateCreated.ToString("yyyy-MM-dd HH:mm")
-            );
+                    var rec = new Calculator
+                    {
+                        Operand1 = t1,
+                        Operand2 = t2,
+                        Operator = op,
+                        Result = result,
+                        DateCreated = DateTime.Now
+                    };
+                    _context.Calculations.Add(rec);
+                    _context.SaveChanges();
 
-            AnsiConsole.MarkupLine("[green]Beräkningen är sparad:[/]");
-            AnsiConsole.Write(table);
+                    var table = new Table().Border(TableBorder.Rounded)
+                        .AddColumn("Id")
+                        .AddColumn("Tal1")
+                        .AddColumn("Tal2")
+                        .AddColumn("Op")
+                        .AddColumn("Result")
+                        .AddColumn("Datum");
+
+                    table.AddRow(
+                        rec.Id.ToString(),
+                        rec.Operand1.ToString("0.##"),
+                        rec.Operand2?.ToString("0.##") ?? "-",
+                        rec.Operator,
+                        rec.Result.ToString("0.##"),
+                        rec.DateCreated.ToString("yyyy-MM-dd HH:mm")
+                    );
+
+                    AnsiConsole.MarkupLine("[green]Beräkningen är sparad:[/]");
+                    AnsiConsole.Write(table);
+                    calculationSuccessful = true;
+                }
+                catch (DivideByZeroException)
+                {
+                    AnsiConsole.MarkupLine("[red]Not possible to divide by 0, try any number that is higher[/]");
+                    AnsiConsole.MarkupLine("[grey]Tryck enter för att försöka igen...[/]");
+                    Console.ReadLine();
+                    Console.Clear();
+                    ShowHeader();
+                }
+            }
+
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
-
 
         void ListCalculations()
         {
@@ -192,7 +208,6 @@ namespace SharedLibrary
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
-
 
         void UpdateCalculation()
         {
@@ -212,29 +227,45 @@ namespace SharedLibrary
                 return;
 
             var rec = _context.Calculations.Find(id)!;
+            bool updateSuccessful = false;
 
-            string op = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("Välj ny operator:")
-                    .AddChoices("+", "-", "*", "/", "√", "%")
-            );
+            while (!updateSuccessful)
+            {
+                try
+                {
+                    string op = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("Välj ny operator:")
+                            .AddChoices("+", "-", "*", "/", "√", "%")
+                    );
 
-            rec.Operand1 = PromptDouble("Nytt Tal 1", nonNegative: op == "√");
-            rec.Operand2 = op != "√"
-                ? PromptDouble("Nytt Tal 2")
-                : null;
+                    rec.Operand1 = PromptDouble("Nytt Tal 1", nonNegative: op == "√");
+                    rec.Operand2 = op != "√"
+                        ? PromptDouble("Nytt Tal 2")
+                        : null;
 
-            rec.Operator = op;
-            rec.Result = opResult(rec);
-            rec.DateCreated = DateTime.Now;
-            _context.SaveChanges();
+                    rec.Operator = op;
+                    rec.Result = opResult(rec);
+                    rec.DateCreated = DateTime.Now;
+                    _context.SaveChanges();
 
-            AnsiConsole.MarkupLine("[green]Uppdaterad![/]");
+                    AnsiConsole.MarkupLine("[green]Uppdaterad![/]");
+                    updateSuccessful = true;
+                }
+                catch (DivideByZeroException)
+                {
+                    AnsiConsole.MarkupLine("[red]Not possible to divide by 0, try any number that is higher[/]");
+                    AnsiConsole.MarkupLine("[grey]Tryck enter för att försöka igen...[/]");
+                    Console.ReadLine();
+                    Console.Clear();
+                    ShowHeader();
+                    RenderTable();
+                }
+            }
+
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
-
-
 
         void DeleteCalculation()
         {
@@ -262,7 +293,6 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-
         double PromptDouble(string label, bool nonNegative = false) =>
             AnsiConsole.Prompt(
                 new TextPrompt<double>($"{label}:")
@@ -271,7 +301,6 @@ namespace SharedLibrary
                             ? ValidationResult.Success()
                             : ValidationResult.Error("[red]Måste vara ≥ 0[/]"))
         );
-
 
         private double opResult(Calculator rec) =>
             rec.Operator switch
