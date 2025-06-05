@@ -35,7 +35,12 @@ namespace SharedLibrary
                         ListAllGames();
                         break;
                     case 3:
+                        ShowStatistics();
+                        break;
+                    case 4:
                         back = true;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -56,8 +61,9 @@ namespace SharedLibrary
             var options = new[]
             {
                 "1. Spela nytt spel",
-                "2. Lista alla tidigare spel",
-                "3. Tillbaka till huvudmenyn"
+                "2. Visa alla tidigare spel",
+                "3. Visa statistik",
+                "4. Tillbaka till huvudmenyn"
             };
 
             int maxLen = options.Max(o => o.Length);
@@ -152,12 +158,9 @@ namespace SharedLibrary
             AnsiConsole.Write(table);
 
             AnsiConsole.MarkupLine("[green]Spelet är sparat![/]");
-
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
-
-
 
         private void ListAllGames()
         {
@@ -175,23 +178,115 @@ namespace SharedLibrary
 
             var table = new Table().Border(TableBorder.Rounded)
                 .AddColumn("Id")
-                .AddColumn("Datum")
                 .AddColumn("Ditt drag")
                 .AddColumn("Datorns drag")
                 .AddColumn("Resultat")
-                .AddColumn("Vinst%");
+                .AddColumn("Vinst%")
+                .AddColumn("Datum");
 
             foreach (var g in allGames)
             {
                 table.AddRow(
                     g.Id.ToString(),
-                    g.DatePlayed.ToString("yyyy-MM-dd HH:mm"),
                     g.PlayerMove,
                     g.ComputerMove,
                     g.Outcome,
-                    $"{g.WinRate:F2} %"
+                    $"{g.WinRate:F2} %",
+                    g.DatePlayed.ToString("yyyy-MM-dd HH:mm")
                 );
             }
+
+            AnsiConsole.Write(table);
+            AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
+            Console.ReadLine();
+        }
+
+
+        private void ShowStatistics()
+        {
+            var allGames = _context.RpsGames.ToList();
+
+            if (!allGames.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]Inga spel registrerade ännu – inga statistikdata att visa.[/]");
+                AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
+                Console.ReadLine();
+                return;
+            }
+
+            // Total statistik
+            int totalGames = allGames.Count;
+            int totalWins = allGames.Count(g => g.Outcome == "Vinst");
+            int totalLosses = allGames.Count(g => g.Outcome == "Förlust");
+            decimal overallWinRate = totalGames > 0
+                ? Math.Round((decimal)totalWins / totalGames * 100, 2)
+                : 0m;
+
+            // Statistik per drag: Sten
+            var stoneGames = allGames.Where(g => g.PlayerMove == "Sten").ToList();
+            int stoneCount = stoneGames.Count;
+            int stoneWins = stoneGames.Count(g => g.Outcome == "Vinst");
+            int stoneLosses = stoneGames.Count(g => g.Outcome == "Förlust");
+            decimal stoneWinRate = stoneCount > 0
+                ? Math.Round((decimal)stoneWins / stoneCount * 100, 2)
+                : 0m;
+
+            // Statistik per drag: Sax
+            var scissorGames = allGames.Where(g => g.PlayerMove == "Sax").ToList();
+            int scissorCount = scissorGames.Count;
+            int scissorWins = scissorGames.Count(g => g.Outcome == "Vinst");
+            int scissorLosses = scissorGames.Count(g => g.Outcome == "Förlust");
+            decimal scissorWinRate = scissorCount > 0
+                ? Math.Round((decimal)scissorWins / scissorCount * 100, 2)
+                : 0m;
+
+            // Statistik per drag: Påse
+            var paperGames = allGames.Where(g => g.PlayerMove == "Påse").ToList();
+            int paperCount = paperGames.Count;
+            int paperWins = paperGames.Count(g => g.Outcome == "Vinst");
+            int paperLosses = paperGames.Count(g => g.Outcome == "Förlust");
+            decimal paperWinRate = paperCount > 0
+                ? Math.Round((decimal)paperWins / paperCount * 100, 2)
+                : 0m;
+
+            var table = new Table().Border(TableBorder.Rounded)
+                .AddColumn("Kategori")
+                .AddColumn("Antal spel")
+                .AddColumn("Antal vinster")
+                .AddColumn("Antal förluster")
+                .AddColumn("Vinstprocent");
+
+            table.AddRow(
+                "Totalt",
+                totalGames.ToString(),
+                totalWins.ToString(),
+                totalLosses.ToString(),
+                $"{overallWinRate:F2} %"
+            );
+
+            table.AddRow(
+                "Sten",
+                stoneCount.ToString(),
+                stoneWins.ToString(),
+                stoneLosses.ToString(),
+                $"{stoneWinRate:F2} %"
+            );
+
+            table.AddRow(
+                "Sax",
+                scissorCount.ToString(),
+                scissorWins.ToString(),
+                scissorLosses.ToString(),
+                $"{scissorWinRate:F2} %"
+            );
+
+            table.AddRow(
+                "Påse",
+                paperCount.ToString(),
+                paperWins.ToString(),
+                paperLosses.ToString(),
+                $"{paperWinRate:F2} %"
+            );
 
             AnsiConsole.Write(table);
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
