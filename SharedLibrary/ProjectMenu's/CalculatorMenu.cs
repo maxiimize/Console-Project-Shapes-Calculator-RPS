@@ -213,9 +213,14 @@ namespace SharedLibrary
 
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("[yellow]Ange [green]Id[/] på den kalkylation som du vill uppdatera (eller [red]0[/] för att avbryta):[/]")
-                    .Validate(i => i == 0 || validIds.Contains(i)
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt Id-nummer (heltal). Försök igen![/]")
+                    .Validate(i =>
+                    {
+                        if (i == 0) return ValidationResult.Success();
+                        if (!validIds.Contains(i))
+                            return ValidationResult.Error($"[red]Fel: Id {i} finns inte i listan. Välj ett Id från tabellen ovan.[/]");
+                        return ValidationResult.Success();
+                    })
             );
             if (id == 0)
                 return;
@@ -267,9 +272,14 @@ namespace SharedLibrary
 
             int id = AnsiConsole.Prompt(
                 new TextPrompt<int>("[yellow]Ange [green]Id[/] på den kalkylation som du vill radera (eller [red]0[/] för att avbryta):[/]")
-                    .Validate(i => i == 0 || validIds.Contains(i)
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]Ogiltigt Id[/]"))
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt Id-nummer (heltal). Försök igen![/]")
+                    .Validate(i =>
+                    {
+                        if (i == 0) return ValidationResult.Success();
+                        if (!validIds.Contains(i))
+                            return ValidationResult.Error($"[red]Fel: Id {i} finns inte i listan. Välj ett Id från tabellen ovan.[/]");
+                        return ValidationResult.Success();
+                    })
             );
             if (id == 0)
                 return;
@@ -283,23 +293,47 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-        double PromptDouble(string label, bool nonNegative = false) =>
-            AnsiConsole.Prompt(
+        double PromptDouble(string label, bool nonNegative = false)
+        {
+            return AnsiConsole.Prompt(
                 new TextPrompt<double>($"{label}:")
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42 eller 3.14). Text som 'bajskorv' fungerar inte![/]")
                     .Validate(n =>
-                        !nonNegative || n >= 0
-                            ? ValidationResult.Success()
-                            : ValidationResult.Error("[red]Måste vara ≥ 0[/]"))
-        );
+                    {
+                        if (nonNegative && n < 0)
+                            return ValidationResult.Error("[red]Fel: Talet måste vara positivt eller noll (≥ 0) för kvadratrot![/]");
 
-        double PromptDoubleNotZero(string label) =>
-            AnsiConsole.Prompt(
+                        if (double.IsInfinity(n))
+                            return ValidationResult.Error("[red]Fel: Talet är för stort. Ange ett mindre tal![/]");
+
+                        if (double.IsNaN(n))
+                            return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
+
+                        return ValidationResult.Success();
+                    })
+            );
+        }
+
+        double PromptDoubleNotZero(string label)
+        {
+            return AnsiConsole.Prompt(
                 new TextPrompt<double>($"{label}:")
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42 eller 3.14). Text som 'bajskorv' fungerar inte![/]")
                     .Validate(n =>
-                        n != 0
-                            ? ValidationResult.Success()
-                            : ValidationResult.Error("[red]Kan inte vara 0 vid division eller modulo[/]"))
-        );
+                    {
+                        if (n == 0)
+                            return ValidationResult.Error("[red]Fel: Division med noll är inte tillåtet! Ange ett tal som inte är noll.[/]");
+
+                        if (double.IsInfinity(n))
+                            return ValidationResult.Error("[red]Fel: Talet är för stort. Ange ett mindre tal![/]");
+
+                        if (double.IsNaN(n))
+                            return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
+
+                        return ValidationResult.Success();
+                    })
+            );
+        }
 
         private double opResult(Calculator rec) =>
             rec.Operator switch
