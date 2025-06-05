@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using DataAcessLayer;
 using DataAcessLayer.ModelsCalculator;
 using Spectre.Console;
@@ -28,11 +28,6 @@ namespace SharedLibrary
                     case 3: UpdateCalculation(); break;
                     case 4: DeleteCalculation(); break;
                     case 5: back = true; break;
-                }
-
-                if (!back)
-                {
-
                 }
             }
         }
@@ -130,8 +125,8 @@ namespace SharedLibrary
         {
             string op = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                .Title("Välj operator:")
-                .AddChoices("+", "-", "*", "/", "√", "%")
+                    .Title("Välj operator:")
+                    .AddChoices("+", "-", "*", "/", "√", "%")
             );
 
             double t1 = PromptDouble("Tal 1", nonNegative: op == "√");
@@ -295,44 +290,62 @@ namespace SharedLibrary
 
         double PromptDouble(string label, bool nonNegative = false)
         {
-            return AnsiConsole.Prompt(
-                new TextPrompt<double>($"{label}:")
-                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42 eller 3.14). Text som 'bajskorv' fungerar inte![/]")
-                    .Validate(n =>
+            string raw = AnsiConsole.Prompt(
+                new TextPrompt<string>($"{label}:")
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42, 3.14 eller 3,14).[/]")
+                    .Validate(input =>
                     {
-                        if (nonNegative && n < 0)
-                            return ValidationResult.Error("[red]Fel: Talet måste vara positivt eller noll (≥ 0) för kvadratrot![/]");
-
-                        if (double.IsInfinity(n))
-                            return ValidationResult.Error("[red]Fel: Talet är för stort. Ange ett mindre tal![/]");
-
-                        if (double.IsNaN(n))
+                        var normalized = input.Replace(',', '.');
+                        if (!double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+                        {
                             return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
+                        }
+
+                        if (double.IsInfinity(value))
+                            return ValidationResult.Error("[red]Fel: Talet är för stort. Ange ett mindre tal![/]");
+                        if (double.IsNaN(value))
+                            return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
+
+                        if (nonNegative && value < 0)
+                            return ValidationResult.Error("[red]Fel: Talet måste vara positivt eller noll (≥ 0) för kvadratrot![/]");
 
                         return ValidationResult.Success();
                     })
             );
+
+            raw = raw.Replace(',', '.');
+            double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double result);
+            return result;
         }
 
         double PromptDoubleNotZero(string label)
         {
-            return AnsiConsole.Prompt(
-                new TextPrompt<double>($"{label}:")
-                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42 eller 3.14). Text som 'bajskorv' fungerar inte![/]")
-                    .Validate(n =>
+            string raw = AnsiConsole.Prompt(
+                new TextPrompt<string>($"{label}:")
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42, 3.14 eller 3,14).[/]")
+                    .Validate(input =>
                     {
-                        if (n == 0)
+                        var normalized = input.Replace(',', '.');
+                        if (!double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+                        {
+                            return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
+                        }
+
+                        if (value == 0)
                             return ValidationResult.Error("[red]Fel: Division med noll är inte tillåtet! Ange ett tal som inte är noll.[/]");
 
-                        if (double.IsInfinity(n))
+                        if (double.IsInfinity(value))
                             return ValidationResult.Error("[red]Fel: Talet är för stort. Ange ett mindre tal![/]");
-
-                        if (double.IsNaN(n))
+                        if (double.IsNaN(value))
                             return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
 
                         return ValidationResult.Success();
                     })
             );
+
+            raw = raw.Replace(',', '.');
+            double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double result);
+            return result;
         }
 
         private double opResult(Calculator rec) =>
