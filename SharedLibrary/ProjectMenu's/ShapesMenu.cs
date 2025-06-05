@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using DataAcessLayer;
 using DataAcessLayer.ModelsShapes;
@@ -32,11 +33,6 @@ namespace SharedLibrary
                     case 3: UpdateShape(); break;
                     case 4: DeleteShape(); break;
                     case 5: back = true; break;
-                }
-
-                if (!back)
-                {
-
                 }
             }
         }
@@ -83,7 +79,6 @@ namespace SharedLibrary
             var trimmed = selection.TrimStart();
             return int.Parse(trimmed.Split('.')[0]);
         }
-
 
         private void CreateShape()
         {
@@ -163,7 +158,9 @@ namespace SharedLibrary
 
         private void ListShapes()
         {
-            var all = _context.Shapes.OrderByDescending(c => c.DateCreated).ToList();
+            var all = _context.Shapes
+                .OrderByDescending(c => c.DateCreated)
+                .ToList();
 
             if (!all.Any())
             {
@@ -209,7 +206,7 @@ namespace SharedLibrary
         private void UpdateShape()
         {
             var all = _context.Shapes
-                .OrderBy(s => s.DateCreated)
+                .OrderByDescending(s => s.DateCreated)
                 .ToList();
 
             if (!all.Any())
@@ -299,12 +296,11 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-
         private void DeleteShape()
         {
             var all = _context.Shapes
                 .Where(s => !s.IsDeleted)
-                .OrderBy(s => s.DateCreated)
+                .OrderByDescending(s => s.DateCreated)
                 .ToList();
 
             if (!all.Any())
@@ -374,27 +370,39 @@ namespace SharedLibrary
         {
             string description = swedishDescription ?? name.ToLower();
 
-            return AnsiConsole.Prompt(
-                new TextPrompt<double>($"Enter {name}:")
+            string raw = AnsiConsole.Prompt(
+                new TextPrompt<string>($"Enter {name}:")
                     .ValidationErrorMessage($"[red]Fel: Du måste ange ett giltigt tal för {description}. Text som 'bajskorv' fungerar inte![/]")
-                    .Validate(n =>
+                    .Validate(input =>
                     {
-                        if (n <= 0)
+                        // Byt ut kommatecken mot punkt
+                        var normalized = input.Replace(',', '.');
+
+                        // Försök parsa med InvariantCulture
+                        if (!double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+                        {
+                            return ValidationResult.Error($"[red]Fel: Ogiltigt tal för {description}. Försök igen![/]");
+                        }
+
+                        if (value <= 0)
                             return ValidationResult.Error($"[red]Fel: {char.ToUpper(description[0]) + description.Substring(1)} måste vara större än 0![/]");
 
-                        if (double.IsInfinity(n))
+                        if (double.IsInfinity(value))
                             return ValidationResult.Error($"[red]Fel: Talet för {description} är för stort. Ange ett mindre tal![/]");
 
-                        if (double.IsNaN(n))
+                        if (double.IsNaN(value))
                             return ValidationResult.Error($"[red]Fel: Ogiltigt tal för {description}. Försök igen![/]");
 
-                        // Extra validering för rimliga värden
-                        if (n > 1000000)
+                        if (value > 1_000_000)
                             return ValidationResult.Error($"[red]Fel: {char.ToUpper(description[0]) + description.Substring(1)} verkar orimligt stor (>1000000). Kontrollera värdet![/]");
 
                         return ValidationResult.Success();
                     })
             );
+
+            raw = raw.Replace(',', '.');
+            double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double result);
+            return result;
         }
     }
 }

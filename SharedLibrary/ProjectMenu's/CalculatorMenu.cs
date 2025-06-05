@@ -102,10 +102,12 @@ namespace SharedLibrary
 
         private void StartCalculations()
         {
-            bool again = true;
-            while (again)
+            
+            while (true)
             {
-                CreateCalculation();
+                bool didCalculation = CreateCalculation();
+                if (!didCalculation)
+                    break;
 
                 var next = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
@@ -116,25 +118,30 @@ namespace SharedLibrary
                         })
                 );
 
-                again = next == "Ny kalkylation";
+                if (next != "Ny kalkylation")
+                    break;
+
                 Console.Clear();
             }
         }
 
-        void CreateCalculation()
+       
+        private bool CreateCalculation()
         {
             string op = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("Välj operator:")
-                    .AddChoices("+", "-", "*", "/", "√", "%")
+                    .Title("Välj operator eller 'Tillbaka till menyn':")
+                    .AddChoices("+", "-", "*", "/", "√", "%", "Tillbaka till menyn")
             );
+
+            if (op == "Tillbaka till menyn")
+                return false;
 
             double t1 = PromptDouble("Tal 1", nonNegative: op == "√");
             double? t2 = null;
 
             if (op != "√")
             {
-                // För division och modulo, validera att tal2 inte är 0
                 if (op == "/" || op == "%")
                 {
                     t2 = PromptDoubleNotZero("Tal 2");
@@ -189,6 +196,7 @@ namespace SharedLibrary
 
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
+            return true;
         }
 
         void ListCalculations()
@@ -224,9 +232,12 @@ namespace SharedLibrary
 
             string op = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("Välj ny operator:")
-                    .AddChoices("+", "-", "*", "/", "√", "%")
+                    .Title("Välj ny operator (eller 'Tillbaka till menyn'):")
+                    .AddChoices("+", "-", "*", "/", "√", "%", "Tillbaka till menyn")
             );
+
+            if (op == "Tillbaka till menyn")
+                return;
 
             rec.Operand1 = PromptDouble("Nytt Tal 1", nonNegative: op == "√");
 
@@ -280,6 +291,16 @@ namespace SharedLibrary
                 return;
 
             var rec = _context.Calculations.Find(id)!;
+
+            var confirm = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Är du säker på att du vill radera denna kalkylation?")
+                    .AddChoices(new[] { "Ja", "Nej (Tillbaka till menyn)" })
+            );
+
+            if (confirm == "Nej (Tillbaka till menyn)")
+                return;
+
             rec.IsDeleted = true;
             _context.SaveChanges();
 
