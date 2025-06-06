@@ -5,6 +5,8 @@ using DataAcessLayer;
 using DataAcessLayer.ModelsShapes;
 using Microsoft.EntityFrameworkCore;
 using Spectre.Console;
+using SharedLibrary.ViewModels;
+using SharedLibrary.Mappings;
 
 namespace SharedLibrary
 {
@@ -126,6 +128,8 @@ namespace SharedLibrary
 
             AnsiConsole.MarkupLine("[green]Shape saved![/]");
 
+            var vm = shape.ToViewModel();
+
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
             table.AddColumn("Type");
@@ -134,22 +138,13 @@ namespace SharedLibrary
             table.AddColumn("Perimeter");
             table.AddColumn("Created");
 
-            string paramDesc = shape switch
-            {
-                Rectangle r => $"W={r.Width}, H={r.Height}",
-                Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
-                Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
-                Rhombus h => $"S={h.SideLength}, H={h.Height}",
-                _ => string.Empty
-            };
-
             table.AddRow(
-                shape.Id.ToString(),
-                shape.GetType().Name,
-                paramDesc,
-                shape.Area.ToString("F2"),
-                shape.Perimeter.ToString("F2"),
-                shape.DateCreated.ToString("yyyy-MM-dd HH:mm"));
+                vm.Id.ToString(),
+                vm.ShapeType,
+                vm.Parameters,
+                vm.Area.ToString("F2"),
+                vm.Perimeter.ToString("F2"),
+                vm.DateCreated);
 
             AnsiConsole.Write(table);
             AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
@@ -160,6 +155,7 @@ namespace SharedLibrary
         {
             var all = _context.Shapes
                 .OrderByDescending(c => c.DateCreated)
+                .Select(s => s.ToViewModel())
                 .ToList();
 
             if (!all.Any())
@@ -180,22 +176,13 @@ namespace SharedLibrary
 
             foreach (var s in all)
             {
-                string paramDesc = s switch
-                {
-                    Rectangle r => $"W={r.Width}, H={r.Height}",
-                    Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
-                    Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
-                    Rhombus h => $"S={h.SideLength}, H={h.Height}",
-                    _ => string.Empty
-                };
-
                 table.AddRow(
                     s.Id.ToString(),
-                    s.GetType().Name,
-                    paramDesc,
+                    s.ShapeType,
+                    s.Parameters,
                     s.Area.ToString("F2"),
                     s.Perimeter.ToString("F2"),
-                    s.DateCreated.ToString("yyyy-MM-dd HH:mm"));
+                    s.DateCreated);
             }
 
             AnsiConsole.Write(table);
@@ -217,6 +204,8 @@ namespace SharedLibrary
                 return;
             }
 
+            var allVm = all.Select(s => s.ToViewModel()).ToList();
+
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
             table.AddColumn("Type");
@@ -225,24 +214,15 @@ namespace SharedLibrary
             table.AddColumn("Perimeter");
             table.AddColumn("Created");
 
-            foreach (var s in all)
+            foreach (var s in allVm)
             {
-                string paramDesc = s switch
-                {
-                    Rectangle r => $"W={r.Width}, H={r.Height}",
-                    Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
-                    Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
-                    Rhombus h => $"S={h.SideLength}, H={h.Height}",
-                    _ => string.Empty
-                };
-
                 table.AddRow(
                     s.Id.ToString(),
-                    s.GetType().Name,
-                    paramDesc,
+                    s.ShapeType,
+                    s.Parameters,
                     s.Area.ToString("F2"),
                     s.Perimeter.ToString("F2"),
-                    s.DateCreated.ToString("yyyy-MM-dd HH:mm")
+                    s.DateCreated
                 );
             }
 
@@ -311,6 +291,8 @@ namespace SharedLibrary
                 return;
             }
 
+            var allVm = all.Select(s => s.ToViewModel()).ToList();
+
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
             table.AddColumn("Type");
@@ -319,24 +301,15 @@ namespace SharedLibrary
             table.AddColumn("Perimeter");
             table.AddColumn("Created");
 
-            foreach (var s in all)
+            foreach (var s in allVm)
             {
-                string paramDesc = s switch
-                {
-                    Rectangle r => $"W={r.Width}, H={r.Height}",
-                    Parallelogram p => $"B={p.BaseLength}, S={p.SideLength}, H={p.Height}",
-                    Triangle t => $"Base={t.BaseLength}, H={t.Height}, S1={t.SideA}, S2={t.SideB}",
-                    Rhombus h => $"S={h.SideLength}, H={h.Height}",
-                    _ => string.Empty
-                };
-
                 table.AddRow(
                     s.Id.ToString(),
-                    s.GetType().Name,
-                    paramDesc,
+                    s.ShapeType,
+                    s.Parameters,
                     s.Area.ToString("F2"),
                     s.Perimeter.ToString("F2"),
-                    s.DateCreated.ToString("yyyy-MM-dd HH:mm")
+                    s.DateCreated
                 );
             }
 
@@ -375,10 +348,7 @@ namespace SharedLibrary
                     .ValidationErrorMessage($"[red]Fel: Du måste ange ett giltigt tal för {description}. Text som 'bajskorv' fungerar inte![/]")
                     .Validate(input =>
                     {
-                        // Byt ut kommatecken mot punkt
                         var normalized = input.Replace(',', '.');
-
-                        // Försök parsa med InvariantCulture
                         if (!double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
                         {
                             return ValidationResult.Error($"[red]Fel: Ogiltigt tal för {description}. Försök igen![/]");
