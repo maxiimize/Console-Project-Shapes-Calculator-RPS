@@ -54,7 +54,7 @@ namespace SharedLibrary
             AnsiConsole.Write(
                 new FigletText("STEN-SAX-PÅSE")
                     .Centered()
-                    .Color(Color.Green));
+                    .Color(Color.Purple));
             AnsiConsole.Write(new Rule());
         }
 

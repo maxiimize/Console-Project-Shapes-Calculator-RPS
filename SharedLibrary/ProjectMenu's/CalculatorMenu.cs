@@ -38,7 +38,7 @@ namespace SharedLibrary
         {
             AnsiConsole.Clear();
             AnsiConsole.Write(
-                new FigletText("CALCULATOR")
+                new FigletText("KALKYLATOR")
                     .Centered()
                     .Color(Color.Red));
             AnsiConsole.Write(new Rule());
@@ -48,11 +48,11 @@ namespace SharedLibrary
         {
             var options = new[]
             {
-                "1. Start calculation",
-                "2. List all calculations",
-                "3. Update a calculation",
-                "4. Delete a calculation",
-                "5. Back to Main Menu"
+                "1. Starta kalkylation",
+                "2. Visa alla kalkylationer",
+                "3. Uppdatera en kalkylation",
+                "4. Radera en kalkylation",
+                "5. Tillbaka till huvudmenyn"
             };
 
             int maxLen = options.Max(o => o.Length);
@@ -339,13 +339,13 @@ namespace SharedLibrary
         {
             string raw = AnsiConsole.Prompt(
                 new TextPrompt<string>($"{label}:")
-                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42, 3.14 eller 3,14).[/]")
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42 eller 3,14).[/]")
                     .Validate(input =>
                     {
                         var normalized = input.Replace(',', '.');
                         if (!double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
                         {
-                            return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
+                            return ValidationResult.Error("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42 eller 3,14).[/]");
                         }
 
                         if (double.IsInfinity(value))
@@ -354,7 +354,7 @@ namespace SharedLibrary
                             return ValidationResult.Error("[red]Fel: Ogiltigt tal. Försök igen![/]");
 
                         if (nonNegative && value < 0)
-                            return ValidationResult.Error("[red]Fel: Talet måste vara positivt eller noll (≥ 0) för kvadratrot![/]");
+                            return ValidationResult.Error("[red]Fel: Talet måste vara positivt eller noll för kvadratrot![/]");
 
                         return ValidationResult.Success();
                     })
@@ -369,7 +369,7 @@ namespace SharedLibrary
         {
             string raw = AnsiConsole.Prompt(
                 new TextPrompt<string>($"{label}:")
-                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42, 3.14 eller 3,14).[/]")
+                    .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt tal (t.ex. 42 eller 3,14).[/]")
                     .Validate(input =>
                     {
                         var normalized = input.Replace(',', '.');
