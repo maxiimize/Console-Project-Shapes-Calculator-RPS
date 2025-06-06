@@ -7,6 +7,7 @@ Detta projekt är en C#/.NET-konsolapplikation där du kan beräkna areor för o
 - [Design och UX](#design-och-ux)
 - [Metoder, patterns och principer](#metoder-patterns-och-principer)
 - [Viktiga funktioner](#viktiga-funktioner)
+- [Dagbok](#dagbok)
 - [Trello Board](#trello-board)
 - [Installation](#installation)
 
@@ -90,6 +91,10 @@ Visning av topplistor/statistik på matcher (RPS)
 Inputvalidering överallt
 
 Användarvänligt, tydligt och robust konsolgränssnitt
+
+
+## Dagbok
+I en Diary.md fil har jag dokumenterat mitt arbete i detta projekt. Den finner man också i detta repository.
 
 
 ## Trello Board
