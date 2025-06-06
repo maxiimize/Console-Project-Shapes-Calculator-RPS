@@ -215,6 +215,7 @@ namespace SharedLibrary
             int totalGames = allGames.Count;
             int totalWins = allGames.Count(g => g.Outcome == "Vinst");
             int totalLosses = allGames.Count(g => g.Outcome == "Förlust");
+            int totalDraws = allGames.Count(g => g.Outcome == "Oavgjort");
             decimal overallWinRate = totalGames > 0
                 ? Math.Round((decimal)totalWins / totalGames * 100, 2)
                 : 0m;
@@ -223,6 +224,7 @@ namespace SharedLibrary
             int stoneCount = stoneGames.Count;
             int stoneWins = stoneGames.Count(g => g.Outcome == "Vinst");
             int stoneLosses = stoneGames.Count(g => g.Outcome == "Förlust");
+            int stoneDraws = stoneGames.Count(g => g.Outcome == "Oavgjort");
             decimal stoneWinRate = stoneCount > 0
                 ? Math.Round((decimal)stoneWins / stoneCount * 100, 2)
                 : 0m;
@@ -231,6 +233,7 @@ namespace SharedLibrary
             int scissorCount = scissorGames.Count;
             int scissorWins = scissorGames.Count(g => g.Outcome == "Vinst");
             int scissorLosses = scissorGames.Count(g => g.Outcome == "Förlust");
+            int scissorDraws = scissorGames.Count(g => g.Outcome == "Oavgjort");
             decimal scissorWinRate = scissorCount > 0
                 ? Math.Round((decimal)scissorWins / scissorCount * 100, 2)
                 : 0m;
@@ -239,6 +242,7 @@ namespace SharedLibrary
             int paperCount = paperGames.Count;
             int paperWins = paperGames.Count(g => g.Outcome == "Vinst");
             int paperLosses = paperGames.Count(g => g.Outcome == "Förlust");
+            int paperDraws = paperGames.Count(g => g.Outcome == "Oavgjort");
             decimal paperWinRate = paperCount > 0
                 ? Math.Round((decimal)paperWins / paperCount * 100, 2)
                 : 0m;
@@ -248,6 +252,7 @@ namespace SharedLibrary
                 .AddColumn("Antal spel")
                 .AddColumn("Antal vinster")
                 .AddColumn("Antal förluster")
+                .AddColumn("Antal oavgjorda")
                 .AddColumn("Vinstprocent");
 
             table.AddRow(
@@ -255,6 +260,7 @@ namespace SharedLibrary
                 totalGames.ToString(),
                 totalWins.ToString(),
                 totalLosses.ToString(),
+                totalDraws.ToString(),
                 $"{overallWinRate:F2} %"
             );
 
@@ -263,6 +269,7 @@ namespace SharedLibrary
                 stoneCount.ToString(),
                 stoneWins.ToString(),
                 stoneLosses.ToString(),
+                stoneDraws.ToString(),
                 $"{stoneWinRate:F2} %"
             );
 
@@ -271,6 +278,7 @@ namespace SharedLibrary
                 scissorCount.ToString(),
                 scissorWins.ToString(),
                 scissorLosses.ToString(),
+                scissorDraws.ToString(),
                 $"{scissorWinRate:F2} %"
             );
 
@@ -279,6 +287,7 @@ namespace SharedLibrary
                 paperCount.ToString(),
                 paperWins.ToString(),
                 paperLosses.ToString(),
+                paperDraws.ToString(),
                 $"{paperWinRate:F2} %"
             );
 
@@ -286,6 +295,7 @@ namespace SharedLibrary
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
+
 
         private string DetermineOutcome(string player, string computer)
         {
