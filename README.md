@@ -58,7 +58,7 @@ Presentationen av resultat och statistik sker i tabellform med färg och tydligh
 
 Inputvalidering för att undvika felaktig inmatning.
 
-Metoder, patterns och principer
+## Metoder, patterns och principer
 Projektet bygger på flera professionella metoder och designprinciper:
 
 Objektorienterad programmering (OOP) – Små, fokuserade klasser/metoder.
@@ -97,4 +97,4 @@ Användarvänligt, tydligt och robust konsolgränssnitt
 
 ## Trello Board
 Länk till min Trello board för arbetsuppföljning:
-[LÄGG IN LÄNK TILL DITT TRELLO BOARD HÄR]
+https://trello.com/invite/b/681a6b9eb373b37621f5afc9/ATTI6116934026d48aa2bdbafb5880971a7cF824F954/former-miniraknare-och-sten-sax-och-pase-console-project
