@@ -1,18 +1,28 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Collections.Generic;
 using DataAcessLayer;
 using DataAcessLayer.ModelsCalculator;
 using Spectre.Console;
 using SharedLibrary.ViewModels;
 using SharedLibrary.Mappings;
+using SharedLibrary.Strategies;    // ← Viktigt för ICalculationStrategy
 
 namespace SharedLibrary
 {
     public class CalculatorMenu
     {
         private readonly AllDbContext _context;
-        public CalculatorMenu(AllDbContext context) => _context = context;
+        private readonly Dictionary<string, ICalculationStrategy> _strategies;
+
+        public CalculatorMenu(AllDbContext context, IEnumerable<ICalculationStrategy> strategies)
+        {
+            _context = context;
+
+            // Bygg upp en snabb uppslagning: Operator‐string → strategi‐objekt
+            _strategies = strategies.ToDictionary(s => s.Operator, s => s);
+        }
 
         public void Run()
         {
@@ -63,8 +73,7 @@ namespace SharedLibrary
             var padded = options.Select(o => padding + o).ToArray();
 
             AnsiConsole.Write(
-                new Markup("[yellow]Välj ett alternativ:[/]")
-                    .Centered());
+                new Markup("[yellow]Välj ett alternativ:[/]").Centered());
             AnsiConsole.Write(new Rule());
 
             var selection = AnsiConsole.Prompt(
@@ -118,10 +127,7 @@ namespace SharedLibrary
                 var next = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Vad vill du göra nu?")
-                        .AddChoices(new[] {
-                            "Ny kalkylation",
-                            "Tillbaka till menyn"
-                        })
+                        .AddChoices(new[] { "Ny kalkylation", "Tillbaka till menyn" })
                 );
 
                 if (next != "Ny kalkylation")
@@ -133,18 +139,21 @@ namespace SharedLibrary
 
         private bool CreateCalculation()
         {
+            // Välj operator eller Avbryt
             string op = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Välj operator eller (Eller [red]Avbryt[/]):")
-                    .AddChoices("+", "-", "*", "/", "√", "%", "Avbryt")
+                    .AddChoices(_strategies.Keys.OrderBy(k => k).Concat(new[] { "Avbryt" }))
             );
 
             if (op == "Avbryt")
                 return false;
 
+            // MATAR IN TAL1
             double t1 = PromptDouble("Tal 1", nonNegative: op == "√");
             double? t2 = null;
 
+            // Endast om operatorn inte är kvadratrot, krävs Tal2
             if (op != "√")
             {
                 if (op == "/" || op == "%")
@@ -157,17 +166,23 @@ namespace SharedLibrary
                 }
             }
 
-            double result = op switch
+            // Använd Strategy‐mönstret för att räkna ut resultatet
+            double result;
+            try
             {
-                "+" => Math.Round(t1 + t2!.Value, 2),
-                "-" => Math.Round(t1 - t2!.Value, 2),
-                "*" => Math.Round(t1 * t2!.Value, 2),
-                "/" => Math.Round(t1 / t2!.Value, 2),
-                "√" => Math.Round(Math.Sqrt(t1), 2),
-                "%" => Math.Round(t1 % t2!.Value, 2),
-                _ => throw new InvalidOperationException()
-            };
+                var strategy = _strategies[op];
+                result = strategy.Calculate(t1, t2);
+            }
+            catch (Exception ex)
+            {
+                // Om något går fel i strategin, visa fel och avbryt nuvarande kalkylation
+                AnsiConsole.MarkupLine($"[red]Fel vid beräkning: {ex.Message}[/]");
+                AnsiConsole.MarkupLine("[grey]Tryck enter för att försöka igen...[/]");
+                Console.ReadLine();
+                return true;
+            }
 
+            // Skapa och spara entiteten
             var rec = new Calculator
             {
                 Operand1 = t1,
@@ -179,8 +194,8 @@ namespace SharedLibrary
             _context.Calculations.Add(rec);
             _context.SaveChanges();
 
+            // Visa resultatet i tabell
             var vm = rec.ToViewModel();
-
             var table = new Table().Border(TableBorder.Rounded)
                 .AddColumn("Id")
                 .AddColumn("Tal1")
@@ -188,7 +203,6 @@ namespace SharedLibrary
                 .AddColumn("Op")
                 .AddColumn("Result")
                 .AddColumn("Datum");
-
             table.AddRow(
                 vm.Id.ToString(),
                 vm.Operand1.ToString("0.##"),
@@ -197,7 +211,6 @@ namespace SharedLibrary
                 vm.Result.ToString("0.##"),
                 vm.DateCreated
             );
-
             AnsiConsole.MarkupLine("[green]Beräkningen är sparad:[/]");
             AnsiConsole.Write(table);
 
@@ -237,10 +250,11 @@ namespace SharedLibrary
 
             var rec = _context.Calculations.Find(id)!;
 
+            // Välj ny operator
             string op = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Välj ny operator (eller 'Tillbaka till menyn'):")
-                    .AddChoices("+", "-", "*", "/", "√", "%", "Tillbaka till menyn")
+                    .AddChoices(_strategies.Keys.OrderBy(k => k).Concat(new[] { "Tillbaka till menyn" }))
             );
 
             if (op == "Tillbaka till menyn")
@@ -265,12 +279,25 @@ namespace SharedLibrary
             }
 
             rec.Operator = op;
-            rec.Result = opResult(rec);
+
+            // Anropa rätt strategi för att räkna ut det nya resultatet
+            try
+            {
+                var strategy = _strategies[op];
+                rec.Result = strategy.Calculate(rec.Operand1, rec.Operand2);
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Fel vid uppdatering: {ex.Message}[/]");
+                AnsiConsole.MarkupLine("[grey]Tryck enter för att återgå utan ändringar...[/]");
+                Console.ReadLine();
+                return;
+            }
+
             rec.DateCreated = DateTime.Now;
             _context.SaveChanges();
 
             var vm = rec.ToViewModel();
-
             var table = new Table().Border(TableBorder.Rounded)
                 .AddColumn("Id")
                 .AddColumn("Tal1")
@@ -278,7 +305,6 @@ namespace SharedLibrary
                 .AddColumn("Op")
                 .AddColumn("Resultat")
                 .AddColumn("Datum");
-
             table.AddRow(
                 vm.Id.ToString(),
                 vm.Operand1.ToString("0.##"),
@@ -335,7 +361,7 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-        double PromptDouble(string label, bool nonNegative = false)
+        private double PromptDouble(string label, bool nonNegative = false)
         {
             string raw = AnsiConsole.Prompt(
                 new TextPrompt<string>($"{label}:")
@@ -365,7 +391,7 @@ namespace SharedLibrary
             return result;
         }
 
-        double PromptDoubleNotZero(string label)
+        private double PromptDoubleNotZero(string label)
         {
             string raw = AnsiConsole.Prompt(
                 new TextPrompt<string>($"{label}:")
@@ -394,17 +420,5 @@ namespace SharedLibrary
             double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double result);
             return result;
         }
-
-        private double opResult(Calculator rec) =>
-            rec.Operator switch
-            {
-                "+" => Math.Round(rec.Operand1 + rec.Operand2!.Value, 2),
-                "-" => Math.Round(rec.Operand1 - rec.Operand2!.Value, 2),
-                "*" => Math.Round(rec.Operand1 * rec.Operand2!.Value, 2),
-                "/" => Math.Round(rec.Operand1 / rec.Operand2!.Value, 2),
-                "√" => Math.Round(Math.Sqrt(rec.Operand1), 2),
-                "%" => Math.Round(rec.Operand1 % rec.Operand2!.Value, 2),
-                _ => rec.Result
-            };
     }
 }
