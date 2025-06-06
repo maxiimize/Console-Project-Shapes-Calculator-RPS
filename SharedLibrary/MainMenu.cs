@@ -13,10 +13,10 @@ namespace SharedLibrary
 
         private readonly string[] _menuOptions = new[]
         {
-            "Shapes",
-            "Calculator",
-            "Rock-Paper-Scissors",  
-            "Exit"
+            "Former",
+            "Kalkylator",
+            "Sten-Sax-Påse",  
+            "Stäng av"
         };
 
         public int OptionCount => _menuOptions.Length;
@@ -76,7 +76,7 @@ namespace SharedLibrary
         {
             AnsiConsole.Clear();
             AnsiConsole.Write(
-                new FigletText("Main Menu")
+                new FigletText("HUVUDMENY")
                     .Centered()
                     .Color(Color.Green));
             AnsiConsole.Write(new Rule());
