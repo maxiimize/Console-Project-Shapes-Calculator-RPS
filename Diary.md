@@ -51,3 +51,23 @@ Jag visar resultatet direkt i en Spectre.Console-tabell för omedelbar visuell åt
 
 ID-valideringen inför jag för att förhindra felaktiga uppdateringar eller raderingar, och soft delete med IsDeleted plus globalt filter skyddar mot oavsiktlig databorttagning. Tillsammans ger dessa val ett strukturerat, robust och användarvänligt flöde som är lätt att underhålla och vidareutveckla.
 
+
+
+05/06-2025
+-----------
+
+Idag jobbade jag först med att förbättra valideringen och felmeddelandena i kalkylator- och shapes-modulerna för att undvika ogiltiga inmatningar och ge användaren tydliga instruktioner (t.ex. undvika division med noll och för stora värden). 
+
+Syftet var att säkerställa dataintegritet och ett robust användarflöde innan jag gick vidare.
+
+Därefter uppdaterade jag RPS-modellen genom att lägga till WinRate i DataAccessLayer.RPS och justera AllDbContext för att skapa rätt kolumn i databasen. 
+
+Sedan körde jag migrationen och kontrollerade i databasen att kolumnen lagts till korrekt. Detta gjordes för att kunna spara löpande vinstprocent i varje spelrad.
+
+Jag skapade sedan RpsMenu i SharedLibrary med fyra alternativ: spela nytt spel, visa tidigare spel, visa statistik, och tillbaka till huvudmenyn. 
+
+Därefter injicerade jag RpsMenu i DI, uppdaterade huvudmenyn så att RPS-modulen körs direkt istället för som placeholder.
+
+I metoden för att spela ett nytt spel samlades datorns drag, utfall och vinstprocent in och sparades som en ny rad i tabellen. 
+
+Listningsmetoden visade alla tidigare omgångar. Statistikalternativet summerade totalt antal spel, vinster och förluster, och beräknade procentuell vinst både totalt och per drag (Sten/Sax/Påse).
