@@ -68,15 +68,13 @@ Dependency Injection (DI) – Lös koppling, enkelt att byta ut komponenter, mö
 
 Strategy Pattern – För kalkylatorns olika beräkningar.
 
-Data Transfer Objects (DTOs) & ViewModels – Tydlig transport av data mellan lager.
+ViewModels – Tydlig transport av data mellan lager.
 
 DRY-principen – Ingen kodduplicering.
 
 Separation of Concerns – Presentation, logik och data är separerat.
 
 ModelState/Validering – Förhindrar felaktig inmatning.
-
-Scrum (vid större projekt) – Arbetssätt med sprintar, dagliga standups och retrospectives.
 
 ## Viktiga funktioner
 CRUD på shapes/kalkylatorhistorik/rps-spelomgångar (Create, Read, Delete)
