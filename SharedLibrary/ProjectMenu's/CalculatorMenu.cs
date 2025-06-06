@@ -89,7 +89,7 @@ namespace SharedLibrary
                 .AddColumn("Tal1")
                 .AddColumn("Tal2")
                 .AddColumn("Op")
-                .AddColumn("Result")
+                .AddColumn("Resultat")
                 .AddColumn("Datum");
 
             foreach (var c in all)
@@ -135,11 +135,11 @@ namespace SharedLibrary
         {
             string op = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("Välj operator eller 'Tillbaka till menyn':")
-                    .AddChoices("+", "-", "*", "/", "√", "%", "Tillbaka till menyn")
+                    .Title("Välj operator eller (Eller [red]Avbryt[/]):")
+                    .AddChoices("+", "-", "*", "/", "√", "%", "Avbryt")
             );
 
-            if (op == "Tillbaka till menyn")
+            if (op == "Avbryt")
                 return false;
 
             double t1 = PromptDouble("Tal 1", nonNegative: op == "√");
@@ -276,7 +276,7 @@ namespace SharedLibrary
                 .AddColumn("Tal1")
                 .AddColumn("Tal2")
                 .AddColumn("Op")
-                .AddColumn("Result")
+                .AddColumn("Resultat")
                 .AddColumn("Datum");
 
             table.AddRow(
