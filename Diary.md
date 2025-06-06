@@ -71,3 +71,26 @@ Därefter injicerade jag RpsMenu i DI, uppdaterade huvudmenyn så att RPS-modulen 
 I metoden för att spela ett nytt spel samlades datorns drag, utfall och vinstprocent in och sparades som en ny rad i tabellen. 
 
 Listningsmetoden visade alla tidigare omgångar. Statistikalternativet summerade totalt antal spel, vinster och förluster, och beräknade procentuell vinst både totalt och per drag (Sten/Sax/Påse).
+
+
+
+06/06-2025
+-----------
+
+Idag började jag med att skapa ViewModels för alla projekt för att tydligt separera datalagret från presentationen och undvika att exponera EF-entiteter direkt i konsolen, vilket gör koden både mer underhållbar och säkrare vid framtida ändringar. 
+
+Därefter utökade jag RPS-statistiken med en kolumn för “Oavgjort”. 
+
+Det var viktigt för att spelaren ska få en komplett bild av alla utfall, inte bara vinster och förluster.
+
+Jag gick sedan igenom alla menyer och översatte all synlig text till svenska för att ge en konsekvent och professionell användarupplevelse.
+
+Blandade språk kan skapa förvirring, så genom att anpassa varnings- och instruktions­texter till svenska säkerställde jag att användaren lätt förstår varje steg.
+
+Nästa steg var att byta till Autofac-baserad Dependency Injection. Genom att ersätta Microsofts inbyggda DI-container med Autofac blev det tydligare hur beroenden hanteras, och koden blev mer modulär och lättare att konfigurera senare. 
+
+Detta val stöder SOLID-principerna om löskoppling och gör det enkelt att byta ut eller lägga till tjänster i framtiden.
+
+Slutligen refaktorerade jag kalkylatorn med Strategy-mönstret genom att införa ICalculationStrategy och en separat klass för varje operator, vilket isolerar beräkningslogiken från menyerna och underlättar för framtida tillägg, exempelvis exponentiering, utan att behöva röra huvudkoden. 
+
+Avrundningsvis genomförde jag en slutlig testning av hela applikationen—Shapes-CRUD, Kalkylatorn och RPS-flödet—för att säkerställa att både DI-ändringarna och strategiimplementeringen fungerar som de ska och att inga nya buggar uppstått efter refaktoreringen.
