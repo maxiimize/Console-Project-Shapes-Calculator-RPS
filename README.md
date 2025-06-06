@@ -7,7 +7,6 @@ Detta projekt är en C#/.NET-konsolapplikation där du kan beräkna areor för o
 - [Design och UX](#design-och-ux)
 - [Metoder, patterns och principer](#metoder-patterns-och-principer)
 - [Viktiga funktioner](#viktiga-funktioner)
-- [Kravspecifikation](#kravspecifikation)
 - [Trello Board](#trello-board)
 - [Installation](#installation)
 
@@ -98,3 +97,10 @@ Användarvänligt, tydligt och robust konsolgränssnitt
 ## Trello Board
 Länk till min Trello board för arbetsuppföljning:
 https://trello.com/invite/b/681a6b9eb373b37621f5afc9/ATTI6116934026d48aa2bdbafb5880971a7cF824F954/former-miniraknare-och-sten-sax-och-pase-console-project
+
+## Installation
+Klona detta repository via denna länk: https://github.com/maxiimize/Console-Project-Shapes-Calculator-RPS.git
+
+Öppna projektet i Visual Studio
+
+Bygg projektet
