@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SharedLibrary.Mappings
 {
-    public static class CalculatorMappingExtensions
+    public static class CalculatorExtensions
     {
         public static CalculatorViewModel ToViewModel(this Calculator c)
         {
