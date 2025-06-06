@@ -3,6 +3,8 @@ using System.Linq;
 using DataAcessLayer;
 using DataAcessLayer.ModelsRPS;
 using Spectre.Console;
+using SharedLibrary.ViewModels;
+using SharedLibrary.Mappings;
 
 namespace SharedLibrary
 {
@@ -89,7 +91,6 @@ namespace SharedLibrary
 
         private void PlayNewGame()
         {
-            // 1) Låt användaren välja Sten/Sax/Påse eller Avbryt
             string playerMove = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Välj ditt drag (eller [red]Avbryt[/]):")
@@ -98,25 +99,20 @@ namespace SharedLibrary
             if (playerMove == "Avbryt")
                 return;
 
-            // 2) Datorn väljer slumpmässigt
             var moves = new[] { "Sten", "Sax", "Påse" };
             string computerMove = moves[_rng.Next(moves.Length)];
 
-            // 3) Avgör resultat (Vinst/Förlust/Oavgjort)
             string outcome = DetermineOutcome(playerMove, computerMove);
 
-            // 4) Hämta befintligt antal spel & vinster i DB (före det här)
             int previousTotal = _context.RpsGames.Count();
             int previousWins = _context.RpsGames.Count(g => g.Outcome == "Vinst");
 
-            // 5) Beräkna ny total + ny winRate (inkl. detta spel)
             int newTotal = previousTotal + 1;
             int newWinCount = previousWins + (outcome == "Vinst" ? 1 : 0);
             decimal winRate = newTotal > 0
                 ? Math.Round((decimal)newWinCount / newTotal * 100, 2)
                 : 0m;
 
-            // 6) Skapa och spara entitet
             var game = new RPS
             {
                 PlayerMove = playerMove,
@@ -128,7 +124,8 @@ namespace SharedLibrary
             _context.RpsGames.Add(game);
             _context.SaveChanges();
 
-            // 7) Visa resultatet i en tabell
+            var vm = game.ToViewModel();
+
             var table = new Table().Border(TableBorder.Rounded)
                 .AddColumn("Ditt drag")
                 .AddColumn("Datorns drag")
@@ -136,13 +133,13 @@ namespace SharedLibrary
                 .AddColumn("Vinst% (alla spel)");
 
             table.AddRow(
-                game.PlayerMove,
-                game.ComputerMove,
-                game.Outcome,
-                $"{game.WinRate:F2} %"
+                vm.PlayerMove,
+                vm.ComputerMove,
+                vm.Outcome,
+                $"{vm.WinRate:F2} %"
             );
 
-            switch (outcome)
+            switch (vm.Outcome)
             {
                 case "Vinst":
                     AnsiConsole.MarkupLine("  [bold green]Grattis! Du vann![/]");
@@ -156,7 +153,6 @@ namespace SharedLibrary
             }
 
             AnsiConsole.Write(table);
-
             AnsiConsole.MarkupLine("[green]Spelet är sparat![/]");
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
@@ -166,6 +162,7 @@ namespace SharedLibrary
         {
             var allGames = _context.RpsGames
                 .OrderByDescending(g => g.DatePlayed)
+                .Select(g => g.ToViewModel())
                 .ToList();
 
             if (!allGames.Any())
@@ -192,7 +189,7 @@ namespace SharedLibrary
                     g.ComputerMove,
                     g.Outcome,
                     $"{g.WinRate:F2} %",
-                    g.DatePlayed.ToString("yyyy-MM-dd HH:mm")
+                    g.DatePlayed
                 );
             }
 
@@ -201,10 +198,11 @@ namespace SharedLibrary
             Console.ReadLine();
         }
 
-
         private void ShowStatistics()
         {
-            var allGames = _context.RpsGames.ToList();
+            var allGames = _context.RpsGames
+                .Select(g => g.ToViewModel())
+                .ToList();
 
             if (!allGames.Any())
             {
@@ -214,7 +212,6 @@ namespace SharedLibrary
                 return;
             }
 
-            // Total statistik
             int totalGames = allGames.Count;
             int totalWins = allGames.Count(g => g.Outcome == "Vinst");
             int totalLosses = allGames.Count(g => g.Outcome == "Förlust");
@@ -222,7 +219,6 @@ namespace SharedLibrary
                 ? Math.Round((decimal)totalWins / totalGames * 100, 2)
                 : 0m;
 
-            // Statistik per drag: Sten
             var stoneGames = allGames.Where(g => g.PlayerMove == "Sten").ToList();
             int stoneCount = stoneGames.Count;
             int stoneWins = stoneGames.Count(g => g.Outcome == "Vinst");
@@ -231,7 +227,6 @@ namespace SharedLibrary
                 ? Math.Round((decimal)stoneWins / stoneCount * 100, 2)
                 : 0m;
 
-            // Statistik per drag: Sax
             var scissorGames = allGames.Where(g => g.PlayerMove == "Sax").ToList();
             int scissorCount = scissorGames.Count;
             int scissorWins = scissorGames.Count(g => g.Outcome == "Vinst");
@@ -240,7 +235,6 @@ namespace SharedLibrary
                 ? Math.Round((decimal)scissorWins / scissorCount * 100, 2)
                 : 0m;
 
-            // Statistik per drag: Påse
             var paperGames = allGames.Where(g => g.PlayerMove == "Påse").ToList();
             int paperCount = paperGames.Count;
             int paperWins = paperGames.Count(g => g.Outcome == "Vinst");
