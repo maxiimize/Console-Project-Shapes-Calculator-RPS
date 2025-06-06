@@ -1,4 +1,4 @@
-Console Project – Shapes, Calculator & RPS
+## Console Project – Shapes, Calculator & RPS
 Detta projekt är en C#/.NET-konsolapplikation där du kan beräkna areor för olika geometriska figurer, använda en miniräknare samt spela Sten-Sax-Påse mot datorn. Projektet är byggt enligt moderna principer och metoder, och visar god arkitektur och kodstruktur. Det är framtaget som en del av en kursuppgift inom systemutveckling.
 
 ## Innehållsförteckning
