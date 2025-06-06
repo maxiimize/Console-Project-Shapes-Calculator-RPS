@@ -4,6 +4,8 @@ using System.Linq;
 using DataAcessLayer;
 using DataAcessLayer.ModelsCalculator;
 using Spectre.Console;
+using SharedLibrary.ViewModels;
+using SharedLibrary.Mappings;
 
 namespace SharedLibrary
 {
@@ -77,7 +79,11 @@ namespace SharedLibrary
 
         private void RenderTable()
         {
-            var all = _context.Calculations.OrderByDescending(c => c.DateCreated).ToList();
+            var all = _context.Calculations
+                .OrderByDescending(c => c.DateCreated)
+                .Select(c => c.ToViewModel())
+                .ToList();
+
             var table = new Table().Border(TableBorder.Rounded)
                 .AddColumn("Id")
                 .AddColumn("Tal1")
@@ -94,7 +100,8 @@ namespace SharedLibrary
                     c.Operand2?.ToString("0.##") ?? "-",
                     c.Operator,
                     c.Result.ToString("0.##"),
-                    c.DateCreated.ToString("yyyy-MM-dd HH:mm"));
+                    c.DateCreated
+                );
             }
 
             AnsiConsole.Write(table);
@@ -102,7 +109,6 @@ namespace SharedLibrary
 
         private void StartCalculations()
         {
-            
             while (true)
             {
                 bool didCalculation = CreateCalculation();
@@ -125,7 +131,6 @@ namespace SharedLibrary
             }
         }
 
-       
         private bool CreateCalculation()
         {
             string op = AnsiConsole.Prompt(
@@ -174,6 +179,8 @@ namespace SharedLibrary
             _context.Calculations.Add(rec);
             _context.SaveChanges();
 
+            var vm = rec.ToViewModel();
+
             var table = new Table().Border(TableBorder.Rounded)
                 .AddColumn("Id")
                 .AddColumn("Tal1")
@@ -183,12 +190,12 @@ namespace SharedLibrary
                 .AddColumn("Datum");
 
             table.AddRow(
-                rec.Id.ToString(),
-                rec.Operand1.ToString("0.##"),
-                rec.Operand2?.ToString("0.##") ?? "-",
-                rec.Operator,
-                rec.Result.ToString("0.##"),
-                rec.DateCreated.ToString("yyyy-MM-dd HH:mm")
+                vm.Id.ToString(),
+                vm.Operand1.ToString("0.##"),
+                vm.Operand2?.ToString("0.##") ?? "-",
+                vm.Operator,
+                vm.Result.ToString("0.##"),
+                vm.DateCreated
             );
 
             AnsiConsole.MarkupLine("[green]Beräkningen är sparad:[/]");
@@ -243,7 +250,6 @@ namespace SharedLibrary
 
             if (op != "√")
             {
-                // För division och modulo, validera att tal2 inte är 0
                 if (op == "/" || op == "%")
                 {
                     rec.Operand2 = PromptDoubleNotZero("Nytt Tal 2");
@@ -263,7 +269,27 @@ namespace SharedLibrary
             rec.DateCreated = DateTime.Now;
             _context.SaveChanges();
 
+            var vm = rec.ToViewModel();
+
+            var table = new Table().Border(TableBorder.Rounded)
+                .AddColumn("Id")
+                .AddColumn("Tal1")
+                .AddColumn("Tal2")
+                .AddColumn("Op")
+                .AddColumn("Result")
+                .AddColumn("Datum");
+
+            table.AddRow(
+                vm.Id.ToString(),
+                vm.Operand1.ToString("0.##"),
+                vm.Operand2?.ToString("0.##") ?? "-",
+                vm.Operator,
+                vm.Result.ToString("0.##"),
+                vm.DateCreated
+            );
+
             AnsiConsole.MarkupLine("[green]Uppdaterad![/]");
+            AnsiConsole.Write(table);
             AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
