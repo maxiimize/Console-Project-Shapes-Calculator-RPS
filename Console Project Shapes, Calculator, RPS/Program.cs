@@ -1,11 +1,13 @@
-﻿using System;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
-using SharedLibrary;
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using DataAcessLayer;
-using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SharedLibrary;
+using SharedLibrary.Strategies;
+using System;
 
 namespace ConsoleProject.MainApp
 {
@@ -13,7 +15,8 @@ namespace ConsoleProject.MainApp
     {
         static void Main(string[] args)
         {
-            var host = Host.CreateDefaultBuilder(args)
+            var hostBuilder = Host.CreateDefaultBuilder(args)
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureAppConfiguration(cfg =>
                 {
                     cfg.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -29,7 +32,20 @@ namespace ConsoleProject.MainApp
                     services.AddTransient<RpsMenu>();
                     services.AddTransient<MainMenu>();
                 })
-                .Build();
+                .ConfigureContainer<ContainerBuilder>(builder =>
+                {
+                    builder.RegisterType<AddStrategy>().As<ICalculationStrategy>().InstancePerDependency();
+                    builder.RegisterType<SubtractStrategy>().As<ICalculationStrategy>().InstancePerDependency();
+                    builder.RegisterType<MultiplyStrategy>().As<ICalculationStrategy>().InstancePerDependency();
+                    builder.RegisterType<DivideStrategy>().As<ICalculationStrategy>().InstancePerDependency();
+                    builder.RegisterType<SqrtStrategy>().As<ICalculationStrategy>().InstancePerDependency();
+                    builder.RegisterType<ModulusStrategy>().As<ICalculationStrategy>().InstancePerDependency();
+
+                    builder.RegisterType<CalculatorMenu>().AsSelf();
+
+                });
+
+            var host = hostBuilder.Build();
 
             using (var scope = host.Services.CreateScope())
             {

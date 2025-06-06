@@ -43,7 +43,7 @@ namespace SharedLibrary
         {
             AnsiConsole.Clear();
             AnsiConsole.Write(
-                new FigletText("SHAPES")
+                new FigletText("FORMER")
                     .Centered()
                     .Color(Color.Aqua));
             AnsiConsole.Write(new Rule());
@@ -53,11 +53,11 @@ namespace SharedLibrary
         {
             var options = new[]
             {
-                "1. Create new shape",
-                "2. List all shapes",
-                "3. Update a shape",
-                "4. Delete a shape",
-                "5. Back to Main Menu"
+                "1. Skapa ny form",
+                "2. Visa alla former",
+                "3. Uppdatera en form",
+                "4. Radera en form",
+                "5. Tillbaka till huvudmenyn"
             };
 
             int maxLen = options.Max(o => o.Length);
@@ -84,39 +84,39 @@ namespace SharedLibrary
 
         private void CreateShape()
         {
-            var types = new[] { "Rectangle", "Parallelogram", "Triangle", "Rhombus", "Back to Shapes menu" };
+            var types = new[] { "Rektangel", "Parallelogram", "Triangel", "Romb", "Avbryt" };
             var type = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("Select shape type or choose 'Back' to go back to Shapes menu:")
+                    .Title("Välj en form (Eller [red]Avbryt[/]):")
                     .AddChoices(types));
 
-            if (type == "Back to Shapes menu")
+            if (type == "Avbryt")
                 return;
 
             Shape shape = type switch
             {
-                "Rectangle" => new Rectangle
+                "Rektangel" => new Rectangle
                 {
-                    Width = PromptDouble("Width", "rektangelns bredd"),
-                    Height = PromptDouble("Height", "rektangelns höjd")
+                    Width = PromptDouble("Bredd", "rektangelns bredd"),
+                    Height = PromptDouble("Höjd", "rektangelns höjd")
                 },
                 "Parallelogram" => new Parallelogram
                 {
-                    BaseLength = PromptDouble("Base length", "parallellogrammets baslängd"),
-                    SideLength = PromptDouble("Side length", "parallellogrammets sidlängd"),
-                    Height = PromptDouble("Height", "parallellogrammets höjd")
+                    BaseLength = PromptDouble("Baslängd", "parallellogrammets baslängd"),
+                    SideLength = PromptDouble("Sidlängd", "parallellogrammets sidlängd"),
+                    Height = PromptDouble("Höjd", "parallellogrammets höjd")
                 },
-                "Triangle" => new Triangle
+                "Triangel" => new Triangle
                 {
-                    BaseLength = PromptDouble("Base length", "triangelns baslängd"),
-                    Height = PromptDouble("Height", "triangelns höjd"),
-                    SideA = PromptDouble("Side A", "triangelns sida A"),
-                    SideB = PromptDouble("Side B", "triangelns sida B")
+                    BaseLength = PromptDouble("Baslängd", "triangelns baslängd"),
+                    Height = PromptDouble("Höjd", "triangelns höjd"),
+                    SideA = PromptDouble("Sida A", "triangelns sida A"),
+                    SideB = PromptDouble("Sida B", "triangelns sida B")
                 },
-                "Rhombus" => new Rhombus
+                "Romb" => new Rhombus
                 {
-                    SideLength = PromptDouble("Side length", "rombens sidlängd"),
-                    Height = PromptDouble("Height", "rombens höjd")
+                    SideLength = PromptDouble("Sidlängd", "rombens sidlängd"),
+                    Height = PromptDouble("Höjd", "rombens höjd")
                 },
                 _ => throw new InvalidOperationException()
             };
@@ -126,17 +126,17 @@ namespace SharedLibrary
             _context.Add(shape);
             _context.SaveChanges();
 
-            AnsiConsole.MarkupLine("[green]Shape saved![/]");
+            AnsiConsole.MarkupLine("[green]Form sparad![/]");
 
             var vm = shape.ToViewModel();
 
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
-            table.AddColumn("Type");
-            table.AddColumn("Params");
+            table.AddColumn("Typ");
+            table.AddColumn("Parametrar");
             table.AddColumn("Area");
-            table.AddColumn("Perimeter");
-            table.AddColumn("Created");
+            table.AddColumn("Omkrets");
+            table.AddColumn("Datum");
 
             table.AddRow(
                 vm.Id.ToString(),
@@ -147,7 +147,7 @@ namespace SharedLibrary
                 vm.DateCreated);
 
             AnsiConsole.Write(table);
-            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            AnsiConsole.MarkupLine("[grey]Tryck på enter för att fortsätta...[/]");
             Console.ReadLine();
         }
 
@@ -160,19 +160,19 @@ namespace SharedLibrary
 
             if (!all.Any())
             {
-                AnsiConsole.MarkupLine("[yellow]Inga shapes har skapats än. Skapa en shape först![/]");
-                AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+                AnsiConsole.MarkupLine("[yellow]Inga former har skapats än. Skapa en shape först![/]");
+                AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
                 Console.ReadLine();
                 return;
             }
 
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
-            table.AddColumn("Type");
-            table.AddColumn("Params");
+            table.AddColumn("Typ");
+            table.AddColumn("Parametrar");
             table.AddColumn("Area");
-            table.AddColumn("Perimeter");
-            table.AddColumn("Created");
+            table.AddColumn("Omkrets");
+            table.AddColumn("Datum");
 
             foreach (var s in all)
             {
@@ -186,7 +186,7 @@ namespace SharedLibrary
             }
 
             AnsiConsole.Write(table);
-            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
 
@@ -198,8 +198,8 @@ namespace SharedLibrary
 
             if (!all.Any())
             {
-                AnsiConsole.MarkupLine("[red]Inga shapes att uppdatera![/]");
-                AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+                AnsiConsole.MarkupLine("[red]Inga former att uppdatera![/]");
+                AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
                 Console.ReadLine();
                 return;
             }
@@ -208,11 +208,11 @@ namespace SharedLibrary
 
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
-            table.AddColumn("Type");
-            table.AddColumn("Params");
+            table.AddColumn("Typ");
+            table.AddColumn("Parametrar");
             table.AddColumn("Area");
-            table.AddColumn("Perimeter");
-            table.AddColumn("Created");
+            table.AddColumn("Omkrets");
+            table.AddColumn("Datum");
 
             foreach (var s in allVm)
             {
@@ -229,7 +229,7 @@ namespace SharedLibrary
             AnsiConsole.Write(table);
 
             int id = AnsiConsole.Prompt(
-                new TextPrompt<int>("[yellow]Ange [green]Id[/] på den shape du vill uppdatera (eller [red]0[/] för att avbryta):[/]")
+                new TextPrompt<int>("[yellow]Ange [green]Id[/] på den form du vill uppdatera (eller [red]0[/] för att avbryta):[/]")
                     .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt Id-nummer (heltal). Text som 'bajskorv' fungerar inte![/]")
                     .Validate(i =>
                     {
@@ -248,31 +248,31 @@ namespace SharedLibrary
             switch (shape)
             {
                 case Rectangle r:
-                    r.Width = PromptDouble("New Width", "rektangelns nya bredd");
-                    r.Height = PromptDouble("New Height", "rektangelns nya höjd");
+                    r.Width = PromptDouble("Ny bredd", "rektangelns nya bredd");
+                    r.Height = PromptDouble("Ny höjd", "rektangelns nya höjd");
                     break;
                 case Parallelogram p:
-                    p.BaseLength = PromptDouble("New Base length", "parallellogrammets nya baslängd");
-                    p.SideLength = PromptDouble("New Side length", "parallellogrammets nya sidlängd");
-                    p.Height = PromptDouble("New Height", "parallellogrammets nya höjd");
+                    p.BaseLength = PromptDouble("Ny baslängd", "parallellogrammets nya baslängd");
+                    p.SideLength = PromptDouble("Ny sidlängd", "parallellogrammets nya sidlängd");
+                    p.Height = PromptDouble("Ny höjd", "parallellogrammets nya höjd");
                     break;
                 case Triangle t:
-                    t.BaseLength = PromptDouble("New Base length", "triangelns nya baslängd");
-                    t.Height = PromptDouble("New Height", "triangelns nya höjd");
-                    t.SideA = PromptDouble("New Side A", "triangelns nya sida A");
-                    t.SideB = PromptDouble("New Side B", "triangelns nya sida B");
+                    t.BaseLength = PromptDouble("Ny baslängd", "triangelns nya baslängd");
+                    t.Height = PromptDouble("Ny höjd", "triangelns nya höjd");
+                    t.SideA = PromptDouble("Ny sida A", "triangelns nya sida A");
+                    t.SideB = PromptDouble("Ny Sida B", "triangelns nya sida B");
                     break;
                 case Rhombus h:
-                    h.SideLength = PromptDouble("New Side length", "rombens nya sidlängd");
-                    h.Height = PromptDouble("New Height", "rombens nya höjd");
+                    h.SideLength = PromptDouble("Ny sidlängd", "rombens nya sidlängd");
+                    h.Height = PromptDouble("New höjd", "rombens nya höjd");
                     break;
             }
 
             shape.Calculate();
             _context.SaveChanges();
 
-            AnsiConsole.MarkupLine("[green]Shape updated![/]");
-            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            AnsiConsole.MarkupLine("[green]Form uppdaterad![/]");
+            AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
 
@@ -285,8 +285,8 @@ namespace SharedLibrary
 
             if (!all.Any())
             {
-                AnsiConsole.MarkupLine("[red]Inga shapes att radera![/]");
-                AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+                AnsiConsole.MarkupLine("[red]Inga former att radera![/]");
+                AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
                 Console.ReadLine();
                 return;
             }
@@ -295,11 +295,11 @@ namespace SharedLibrary
 
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Id");
-            table.AddColumn("Type");
-            table.AddColumn("Params");
+            table.AddColumn("Typ");
+            table.AddColumn("Parametrar");
             table.AddColumn("Area");
-            table.AddColumn("Perimeter");
-            table.AddColumn("Created");
+            table.AddColumn("Omkrets");
+            table.AddColumn("Datum");
 
             foreach (var s in allVm)
             {
@@ -316,7 +316,7 @@ namespace SharedLibrary
             AnsiConsole.Write(table);
 
             int id = AnsiConsole.Prompt(
-                new TextPrompt<int>("[yellow]Ange [green]Id[/] på shape att radera (eller [red]0[/] för att avbryta):[/]")
+                new TextPrompt<int>("[yellow]Ange [green]Id[/] på form som du vill radera (eller [red]0[/] för att avbryta):[/]")
                     .ValidationErrorMessage("[red]Fel: Du måste ange ett giltigt Id-nummer (heltal). Text som 'bajskorv' fungerar inte![/]")
                     .Validate(i =>
                     {
@@ -331,20 +331,31 @@ namespace SharedLibrary
                 return;
 
             var shape = _context.Shapes.Find(id)!;
+
+            var confirm = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title($"Är du säker på att du vill radera denna form?")
+                    .AddChoices(new[] { "Ja", "Nej (Tillbaka till menyn)" })
+            );
+
+            if (confirm != "Ja")
+                return;
+
             shape.IsDeleted = true;
             _context.SaveChanges();
 
-            AnsiConsole.MarkupLine("[green]Shape deleted![/]");
-            AnsiConsole.MarkupLine("[grey]Press enter to continue...[/]");
+            AnsiConsole.MarkupLine("[green]Form raderad![/]");
+            AnsiConsole.MarkupLine("[grey]Tryck enter för att fortsätta...[/]");
             Console.ReadLine();
         }
+
 
         private double PromptDouble(string name, string swedishDescription = null)
         {
             string description = swedishDescription ?? name.ToLower();
 
             string raw = AnsiConsole.Prompt(
-                new TextPrompt<string>($"Enter {name}:")
+                new TextPrompt<string>($"Ange {name}:")
                     .ValidationErrorMessage($"[red]Fel: Du måste ange ett giltigt tal för {description}. Text som 'bajskorv' fungerar inte![/]")
                     .Validate(input =>
                     {
