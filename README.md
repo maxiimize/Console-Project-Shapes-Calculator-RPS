@@ -1,109 +1,117 @@
 ## Console Project – Shapes, Calculator & RPS
-Detta projekt är en C#/.NET-konsolapplikation där du kan beräkna areor för olika geometriska figurer, använda en miniräknare samt spela Sten-Sax-Påse mot datorn. Projektet är byggt enligt moderna principer och metoder, och visar god arkitektur och kodstruktur. Det är framtaget som en del av en kursuppgift inom systemutveckling.
 
-## Innehållsförteckning
-- [Beskrivning av projektet](#beskrivning-av-projektet)
-- [Tekniker och arkitektur](#tekniker-och-arkitektur)
-- [Design och UX](#design-och-ux)
-- [Metoder, patterns och principer](#metoder-patterns-och-principer)
-- [Viktiga funktioner](#viktiga-funktioner)
-- [Dagbok](#dagbok)
+This project is a C#/.NET console application where you can calculate areas for various geometric shapes, use a mini calculator, and play Rock-Paper-Scissors against the computer. The project is built according to modern principles and methods, and demonstrates good architecture and code structure. It was developed as part of a course assignment in systems development.
+
+## Table of Contents
+- [Project Description](#project-description)
+- [Technologies and Architecture](#technologies-and-architecture)
+- [Design and UX](#design-and-ux)
+- [Methods, Patterns and Principles](#methods-patterns-and-principles)
+- [Key Features](#key-features)
+- [Diary](#diary)
 - [Trello Board](#trello-board)
 - [Installation](#installation)
 
-## Beskrivning av projektet
-Denna applikation erbjuder tre huvudsakliga funktioner:
+## Project Description
 
-Shapes: Beräkna area och omkrets för rektangel, triangel, parallellogram och romb.
+This application offers three main functions:
 
-Calculator: Utför grundläggande matematiska beräkningar (addition, subtraktion, multiplikation, division, modulus, kvadratroten).
+Shapes: Calculate area and perimeter for rectangle, triangle, parallelogram and rhombus.
 
-Rock-Paper-Scissors (RPS): Spela Sten-Sax-Påse mot datorn. Statistik och historik sparas.
+Calculator: Perform basic mathematical calculations (addition, subtraction, multiplication, division, modulus, square root).
 
-Syftet är att träna på:
+Rock-Paper-Scissors (RPS): Play Rock-Paper-Scissors against the computer. Statistics and history are saved.
 
-Arkitektur enligt lagerprinciper (separation av presentation, logik och data)
+The purpose is to practice:
 
-Att använda design patterns och professionell kodstruktur
+Architecture according to layered principles (separation of presentation, logic and data)
 
-Databasanvändning och best practices
+Using design patterns and professional code structure
 
-## Tekniker och arkitektur
-C# / .NET 9 – Grund för applikationen
+Database usage and best practices
 
-Entity Framework Core – För databasåtkomst (Code First)
+## Technologies and Architecture
 
-SQL Server – Databasmotor
+C# / .NET 9 – Foundation for the application
 
-Autofac – Dependency Injection (IoC-container)
+Entity Framework Core – For database access (Code First)
 
-Spectre.Console – För bättre konsolupplevelse (menyer, tabeller, färg)
+SQL Server – Database engine
 
-GitHub – Versionshantering, feature branches och beskrivande commit-meddelanden
+Autofac – Dependency Injection (IoC container)
 
-Projektet är uppdelat i flera lager:
+Spectre.Console – For better console experience (menus, tables, color)
 
-Presentation: Hanterar användargränssnitt och menyer
+GitHub – Version control, feature branches and descriptive commit messages
 
-Logik: Hanterar all logik
+The project is divided into several layers:
 
-Data: Entity Framework Core, DbContext och migrations
+Presentation: Handles user interface and menus
 
-## Design och UX
-Konsolgränssnittet använder Spectre.Console för att ge en mer professionell känsla.
+Logic: Handles all logic
 
-Tydlig och lättnavigerad huvudmeny, logiskt flöde mellan delarna.
+Data: Entity Framework Core, DbContext and migrations
 
-Presentationen av resultat och statistik sker i tabellform med färg och tydlighet.
+## Design and UX
 
-Inputvalidering för att undvika felaktig inmatning.
+The console interface uses Spectre.Console to provide a more professional feel.
 
-## Metoder, patterns och principer
-Projektet bygger på flera professionella metoder och designprinciper:
+Clear and easy-to-navigate main menu, logical flow between parts.
 
-Objektorienterad programmering (OOP) – Små, fokuserade klasser/metoder.
+Presentation of results and statistics in table format with color and clarity.
 
-Lagerarkitektur (Layered Architecture) – Tydlig separation av ansvar.
+Input validation to avoid incorrect input.
 
-Dependency Injection (DI) – Lös koppling, enkelt att byta ut komponenter, möjliggör testbarhet.
+## Methods, Patterns and Principles
 
-Strategy Pattern – För kalkylatorns olika beräkningar.
+The project is based on several professional methods and design principles:
 
-ViewModels – Tydlig transport av data mellan lager.
+Object-Oriented Programming (OOP) – Small, focused classes/methods.
 
-DRY-principen – Ingen kodduplicering.
+Layered Architecture – Clear separation of responsibilities.
 
-Separation of Concerns – Presentation, logik och data är separerat.
+Dependency Injection (DI) – Loose coupling, easy to replace components, enables testability.
 
-ModelState/Validering – Förhindrar felaktig inmatning.
+Strategy Pattern – For the calculator's different calculations.
 
-## Viktiga funktioner
-CRUD på shapes/kalkylatorhistorik/rps-spelomgångar (Create, Read, Delete)
+ViewModels – Clear transport of data between layers.
 
-Automatisk beräkning av area och omkrets för olika former
+DRY Principle – No code duplication.
 
-Olika strategier för kalkylatorn (exempelvis kvadratroten för endast ett tal)
+Separation of Concerns – Presentation, logic and data are separated.
 
-Spara och visa historik/statistik för RPS-matcher
+ModelState/Validation – Prevents incorrect input.
 
-Visning av topplistor/statistik på matcher (RPS)
+## Key Features
 
-Inputvalidering överallt
+CRUD on shapes/calculator history/rps game rounds (Create, Read, Delete)
 
-Användarvänligt, tydligt och robust konsolgränssnitt
+Automatic calculation of area and perimeter for different shapes
 
+Different strategies for the calculator (for example square root for only one number)
 
-## Dagbok
-I en Diary.md fil har jag dokumenterat mitt arbete i detta projekt. Den finner man också i detta repository.
+Save and display history/statistics for RPS matches
 
+Display leaderboards/statistics on matches (RPS)
+
+Input validation everywhere
+
+User-friendly, clear and robust console interface
+
+## Diary
+
+In a Diary.md file I have documented my work on this project. It can also be found in this repository.
 
 ## Trello Board
-Länk till min Trello board för arbetsuppföljning:
+
+Link to my Trello board for work tracking:
+
 https://trello.com/invite/b/681a6b9eb373b37621f5afc9/ATTI6116934026d48aa2bdbafb5880971a7cF824F954/former-miniraknare-och-sten-sax-och-pase-console-project
 
 ## Installation
-Klona detta repository via denna länk: https://github.com/maxiimize/Console-Project-Shapes-Calculator-RPS.git
 
-Öppna projektet i Visual Studio
+Clone this repository via this link: https://github.com/maxiimize/Console-Project-Shapes-Calculator-RPS.git
 
-Bygg projektet
+Open the project in Visual Studio
+
+Build the project
